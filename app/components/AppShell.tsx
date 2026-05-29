@@ -6,24 +6,10 @@ export default function AppShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[#f8fbff]">
+    <div className="flex min-h-screen bg-slate-100">
       <Sidebar />
 
-      <main
-        className="
-          w-full
-          overflow-x-hidden
-          p-4
-          transition-all
-          duration-300
-
-          lg:ml-64
-          lg:p-6
-
-          2xl:ml-72
-          2xl:p-8
-        "
-      >
+      <main className="ml-[280px] w-full p-8 overflow-auto">
         {children}
       </main>
     </div>
