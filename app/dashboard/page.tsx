@@ -126,9 +126,9 @@ function agruparPorDia(lista: { data: string; valor: number }[]) {
 
 function MiniMetricCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-[#dbeafe] bg-white/90 p-3 shadow-[0_10px_28px_rgba(15,59,130,0.07)] backdrop-blur-sm">
-      <p className="text-[11px] font-medium text-[#36577d]">{label}</p>
-      <h3 className="text-sm font-bold text-[#020817] mt-1">{value}</h3>
+    <div className="rounded-2xl border border-[#dbeafe] bg-white/90 p-2.5 shadow-[0_10px_28px_rgba(15,59,130,0.07)] backdrop-blur-sm 2xl:p-3">
+      <p className="text-[10px] font-medium text-[#36577d] 2xl:text-[11px]">{label}</p>
+      <h3 className="mt-1 text-xs font-bold text-[#020817] 2xl:text-sm">{value}</h3>
     </div>
   );
 }
@@ -292,26 +292,26 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen space-y-6 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1">
+      <div className="min-h-screen space-y-4 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1 lg:space-y-5 2xl:space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-bold tracking-wide text-[#0f3b82]">BI Financeiro</p>
-            <h1 className="text-4xl font-extrabold tracking-tight text-[#020817]">Dashboard</h1>
-            <p className="mt-2 text-[#4b6380]">Resumo geral do financeiro, recebimentos e vendas.</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#020817] 2xl:text-4xl">Dashboard</h1>
+            <p className="mt-1 text-sm text-[#4b6380] 2xl:mt-2 2xl:text-base">Resumo geral do financeiro, recebimentos e vendas.</p>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/importar" className="flex items-center gap-2 rounded-2xl border border-[#0f3b82]/20 bg-white px-5 py-3 font-semibold text-[#0f3b82] shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]">
+            <Link href="/importar" className="flex items-center gap-2 rounded-2xl border border-[#0f3b82]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#0f3b82] shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)] 2xl:px-5 2xl:py-3">
               <Download size={16} />
               Importar Planilhas
             </Link>
-            <div className="flex items-center gap-3 rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
+            <div className="flex items-center gap-2 rounded-2xl border border-[#dbeafe] bg-white px-3 py-2.5 text-sm shadow-[0_10px_28px_rgba(15,59,130,0.07)] 2xl:gap-3 2xl:px-4 2xl:py-3">
               <CalendarDays size={18} className="text-[#0f3b82]" />
               <input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="outline-none text-sm" />
               <span className="text-slate-400">até</span>
               <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} className="outline-none text-sm" />
             </div>
-            <button onClick={carregarDados} className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-5 py-3 font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)]">
+            <button onClick={carregarDados} className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)] 2xl:px-5 2xl:py-3">
               <RefreshCcw size={16} />
               Atualizar
             </button>
@@ -330,7 +330,7 @@ export default function DashboardPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-2.5 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f] 2xl:py-3"
             value={String(criarDataLocal(dataInicio).getMonth())}
           >
             <option value="0">Janeiro</option>
@@ -358,7 +358,7 @@ export default function DashboardPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-2.5 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f] 2xl:py-3"
             value={String(criarDataLocal(dataInicio).getFullYear())}
           >
             <option value="2025">2025</option>
@@ -367,20 +367,20 @@ export default function DashboardPage() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 2xl:gap-4">
           {cardsResumo.map((item) => {
             const Icon = item.Icon;
             const variacaoTexto = `${item.variacao >= 0 ? "+" : ""}${item.variacao.toFixed(1).replace(".", ",")}%`;
             return (
-              <div key={item.titulo} className="rounded-3xl border border-[#dbeafe] bg-white/90 p-5 shadow-[0_18px_45px_rgba(15,59,130,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)]">
+              <div key={item.titulo} className="rounded-3xl border border-[#dbeafe] bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,59,130,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs text-slate-500 font-medium">{item.titulo}</p>
-                    <h2 className={`text-2xl font-bold mt-3 ${item.cor}`}>{item.valor}</h2>
+                    <h2 className={`mt-2 text-xl font-bold ${item.cor} 2xl:mt-3 2xl:text-2xl`}>{item.valor}</h2>
                     <p className={`mt-2 text-[11px] font-semibold ${item.variacao >= 0 ? "text-[#16a34a]" : "text-red-500"}`}>{variacaoTexto} vs mês anterior</p>
                   </div>
-                  <div className={`${item.iconBg} ${item.iconColor} w-12 h-12 rounded-2xl flex items-center justify-center shrink-0`}>
-                    <Icon size={23} strokeWidth={2.4} />
+                  <div className={`${item.iconBg} ${item.iconColor} flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl 2xl:h-12 2xl:w-12`}>
+                    <Icon size={20} strokeWidth={2.4} className="2xl:h-[23px] 2xl:w-[23px]" />
                   </div>
                 </div>
               </div>
@@ -388,7 +388,7 @@ export default function DashboardPage() {
           })}
         </div>
 
-        <div className="grid xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
           <ResumoContas total={totalContas} media={contas.length ? totalContas / contas.length : 0} quantidade={contas.length} maior={Math.max(0, ...contas.map((i) => Number(i.valor || 0)))} porPlano={porPlano} porDia={contasPorDia} ultimos={contas.slice(0, 5)} moeda={moeda} formatarData={formatarData} />
           <ResumoRecebimentos total={totalRecebido} bruto={totalRecebidoBruto} taxas={totalTaxasRecebimento} media={recebimentos.length ? totalRecebido / recebimentos.length : 0} quantidade={recebimentos.length} maior={Math.max(0, ...recebimentos.map((i) => valorLiquidoRecebimento(i)))} porEspecie={porEspecie} porDia={recebimentosPorDia} ultimos={recebimentos.slice(0, 5)} moeda={moeda} formatarData={formatarData} />
           <ResumoVendas total={totalVendido} ticketMedio={ticketMedio} quantidade={quantidadeVendas} maior={Math.max(0, ...vendas.map((i) => Number(i.valor || 0)))} vendasPorDia={vendasPorDia} vendasPorFaixa={vendasPorFaixa} ultimas={vendas.slice(0, 5)} moeda={moeda} formatarData={formatarData} />
@@ -407,10 +407,10 @@ export default function DashboardPage() {
 
 function ResumoContas({ total, media, quantidade, maior, porPlano, porDia, ultimos, moeda, formatarData }: { total: number; media: number; quantidade: number; maior: number; porPlano: { nome: string; total: number }[]; porDia: { data: string; total: number }[]; ultimos: ContaPaga[]; moeda: (v: number) => string; formatarData: (d: string) => string; }) {
   return (
-    <div className="min-h-[760px] overflow-hidden rounded-3xl border border-[#dbeafe] bg-white/95 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
-      <div className="border-b border-[#e2ecfb] p-5">
+    <div className="overflow-hidden rounded-3xl border border-[#dbeafe] bg-white/95 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:min-h-[760px]">
+      <div className="border-b border-[#e2ecfb] p-4 2xl:p-5">
         <h2 className="font-bold text-[#0f3b82]">Contas Pagas</h2>
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mt-4">
+        <div className="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4 2xl:gap-3">
           <MiniMetricCard label="Total Pago" value={moeda(total)} />
           <MiniMetricCard label="Média Diária" value={moeda(media)} />
           <MiniMetricCard label="Pagamentos" value={quantidade} />
@@ -426,10 +426,10 @@ function ResumoContas({ total, media, quantidade, maior, porPlano, porDia, ultim
 
 function ResumoRecebimentos({ total, bruto, taxas, media, quantidade, maior, porEspecie, porDia, ultimos, moeda, formatarData }: { total: number; bruto: number; taxas: number; media: number; quantidade: number; maior: number; porEspecie: { nome: string; total: number }[]; porDia: { data: string; total: number }[]; ultimos: Recebimento[]; moeda: (v: number) => string; formatarData: (d: string) => string; }) {
   return (
-    <div className="min-h-[760px] overflow-hidden rounded-3xl border border-[#dbeafe] bg-white/95 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
-      <div className="border-b border-[#e2ecfb] p-5">
+    <div className="overflow-hidden rounded-3xl border border-[#dbeafe] bg-white/95 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:min-h-[760px]">
+      <div className="border-b border-[#e2ecfb] p-4 2xl:p-5">
         <h2 className="font-bold text-[#16a34a]">Valores Recebidos</h2>
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mt-4">
+        <div className="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4 2xl:gap-3">
           <MiniMetricCard label="Valor Bruto" value={moeda(bruto)} />
           <MiniMetricCard label="Taxas" value={moeda(taxas)} />
           <MiniMetricCard label="Valor Líquido" value={moeda(total)} />
@@ -445,20 +445,20 @@ function ResumoRecebimentos({ total, bruto, taxas, media, quantidade, maior, por
 
 function ResumoVendas({ total, ticketMedio, quantidade, maior, vendasPorDia, vendasPorFaixa, ultimas, moeda, formatarData }: { total: number; ticketMedio: number; quantidade: number; maior: number; vendasPorDia: { data: string; total: number }[]; vendasPorFaixa: { nome: string; total: number }[]; ultimas: Venda[]; moeda: (v: number) => string; formatarData: (d: string) => string; }) {
   return (
-    <div className="min-h-[760px] overflow-hidden rounded-3xl border border-[#dbeafe] bg-white/95 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
-      <div className="border-b border-[#e2ecfb] p-5">
+    <div className="overflow-hidden rounded-3xl border border-[#dbeafe] bg-white/95 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:min-h-[760px]">
+      <div className="border-b border-[#e2ecfb] p-4 2xl:p-5">
         <h2 className="font-bold text-[#1d4ed8]">Vendas</h2>
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 mt-4">
+        <div className="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-4 2xl:gap-3">
           <MiniMetricCard label="Total Vendido" value={moeda(total)} />
           <MiniMetricCard label="Ticket Médio" value={moeda(ticketMedio)} />
           <MiniMetricCard label="Vendas" value={quantidade} />
           <MiniMetricCard label="Maior Venda" value={moeda(maior)} />
         </div>
       </div>
-      <LinhaResumo titulo="Evolução das Vendas" dados={vendasPorDia} cor="#1d4ed8" moeda={moeda} altura={230} />
-      <div className="border-b border-[#e2ecfb] p-5">
+      <LinhaResumo titulo="Evolução das Vendas" dados={vendasPorDia} cor="#1d4ed8" moeda={moeda} altura={190} />
+      <div className="border-b border-[#e2ecfb] p-4 2xl:p-5">
         <h3 className="font-semibold text-sm mb-3">Distribuição por Faixa de Valor</h3>
-        <ResponsiveContainer width="100%" height={260}>
+        <div className="h-[220px] min-h-[220px] min-w-[280px] 2xl:h-[260px]"><ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={220}>
           <BarChart
             data={vendasPorFaixa}
             layout="vertical"
@@ -495,7 +495,7 @@ function ResumoVendas({ total, ticketMedio, quantidade, maior, vendasPorDia, ven
               barSize={20}
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer></div>
       </div>
       <TabelaVendas ultimas={ultimas} moeda={moeda} formatarData={formatarData} />
     </div>
@@ -504,13 +504,13 @@ function ResumoVendas({ total, ticketMedio, quantidade, maior, vendasPorDia, ven
 
 function PizzaResumo({ titulo, total, dados, cores, moeda }: { titulo: string; total: number; dados: { nome: string; total: number }[]; cores: string[]; moeda: (v: number) => string; }) {
   return (
-    <div className="border-b border-[#e2ecfb] p-5">
+    <div className="border-b border-[#e2ecfb] p-4 2xl:p-5">
       <h3 className="font-semibold text-sm mb-3">{titulo}</h3>
-      <div className="grid grid-cols-1 lg:grid-cols-[170px_1fr] gap-4 items-center">
-        <div className="relative h-[210px] min-h-[210px]">
-          <ResponsiveContainer width="100%" height={210}>
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[160px_1fr] 2xl:grid-cols-[170px_1fr] 2xl:gap-4 items-center">
+        <div className="relative h-[190px] min-h-[190px] min-w-[160px] 2xl:h-[210px] 2xl:min-h-[210px]">
+          <ResponsiveContainer width="100%" height="100%" minWidth={160} minHeight={180}>
             <PieChart>
-              <Pie data={dados} dataKey="total" nameKey="nome" innerRadius={55} outerRadius={85} paddingAngle={1} stroke="#ffffff" strokeWidth={2}>
+              <Pie data={dados} dataKey="total" nameKey="nome" innerRadius={48} outerRadius={76} paddingAngle={1} stroke="#ffffff" strokeWidth={2}>
                 {dados.map((_, index) => <Cell key={index} fill={cores[index % cores.length]} />)}
               </Pie>
               <Tooltip formatter={(v: any) => moeda(Number(v))} />
@@ -537,19 +537,21 @@ function PizzaResumo({ titulo, total, dados, cores, moeda }: { titulo: string; t
   );
 }
 
-function LinhaResumo({ titulo, dados, cor, moeda, altura = 180 }: { titulo: string; dados: { data: string; total: number }[]; cor: string; moeda: (v: number) => string; altura?: number; }) {
+function LinhaResumo({ titulo, dados, cor, moeda, altura = 170 }: { titulo: string; dados: { data: string; total: number }[]; cor: string; moeda: (v: number) => string; altura?: number; }) {
   return (
-    <div className="border-b border-[#e2ecfb] p-5">
-      <h3 className="font-semibold text-sm mb-3">{titulo}</h3>
-      <ResponsiveContainer width="100%" height={Number(altura) || 180}>
-        <LineChart data={dados}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
-          <XAxis dataKey="data" tickFormatter={(v) => criarDataLocal(v).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${Number(v) / 1000}k`} />
-          <Tooltip formatter={(v: any) => moeda(Number(v))} />
-          <Line type="monotone" dataKey="total" stroke={cor} strokeWidth={2} dot={{ r: 2, fill: cor }} />
-        </LineChart>
-      </ResponsiveContainer>
+    <div className="border-b border-[#e2ecfb] p-4 2xl:p-5">
+      <h3 className="mb-3 text-sm font-semibold">{titulo}</h3>
+      <div style={{ height: Number(altura) || 170 }}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={260} minHeight={150}>
+          <LineChart data={dados}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
+            <XAxis dataKey="data" tickFormatter={(v) => criarDataLocal(v).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${Number(v) / 1000}k`} />
+            <Tooltip formatter={(v: any) => moeda(Number(v))} />
+            <Line type="monotone" dataKey="total" stroke={cor} strokeWidth={2} dot={{ r: 2, fill: cor }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -557,12 +559,12 @@ function LinhaResumo({ titulo, dados, cor, moeda, altura = 180 }: { titulo: stri
 function TabelaContas({ ultimos, moeda, formatarData }: { ultimos: ContaPaga[]; moeda: (valor: number) => string; formatarData: (data: string) => string; }) {
   return (
     <div className="p-5">
-      <h3 className="font-bold text-sm text-red-700 mb-3">Últimos Pagamentos</h3>
-      <table className="w-full text-xs">
+      <h3 className="font-bold text-sm text-[#0f3b82] mb-3">Últimos Pagamentos</h3>
+      <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-xs">
         <thead><tr className="bg-slate-50 text-slate-500"><th className="text-left py-3 px-2">Data</th><th className="text-left py-3 px-2">Plano</th><th className="text-left py-3 px-2">Descrição</th><th className="text-right py-3 px-2">Valor</th></tr></thead>
         <tbody>{ultimos.map((item) => <tr key={item.id} className="border-t border-slate-100"><td className="py-3 px-2">{formatarData(item.data)}</td><td className="py-3 px-2">{cortarTexto(item.plano_contas, 18)}</td><td className="py-3 px-2 text-slate-500">{cortarTexto(item.descricao || "-", 18)}</td><td className="py-3 px-2 text-right font-semibold">{moeda(Number(item.valor || 0))}</td></tr>)}</tbody>
-      </table>
-      <Link href="/contas-pagas" className="block text-center mt-4 text-xs font-bold text-red-600">Ver todos os pagamentos</Link>
+      </table></div>
+      <Link href="/contas-pagas" className="block text-center mt-4 text-xs font-bold text-[#0f3b82]">Ver todos os pagamentos</Link>
     </div>
   );
 }
@@ -570,12 +572,12 @@ function TabelaContas({ ultimos, moeda, formatarData }: { ultimos: ContaPaga[]; 
 function TabelaRecebimentos({ ultimos, moeda, formatarData }: { ultimos: Recebimento[]; moeda: (valor: number) => string; formatarData: (data: string) => string; }) {
   return (
     <div className="p-5">
-      <h3 className="font-bold text-sm text-emerald-700 mb-3">Últimos Recebimentos</h3>
-      <table className="w-full text-xs">
+      <h3 className="font-bold text-sm text-[#16a34a] mb-3">Últimos Recebimentos</h3>
+      <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-xs">
         <thead><tr className="bg-slate-50 text-slate-500"><th className="text-left py-3 px-2">Data</th><th className="text-left py-3 px-2">Paciente</th><th className="text-left py-3 px-2">Espécie</th><th className="text-right py-3 px-2">Líquido</th></tr></thead>
-        <tbody>{ultimos.map((item) => <tr key={item.id} className="border-t border-slate-100"><td className="py-3 px-2">{formatarData(item.data)}</td><td className="py-3 px-2">{cortarTexto(item.paciente, 18)}</td><td className="py-3 px-2 text-slate-500">{cortarTexto(nomeEspecie(item.especie), 16)}</td><td className="py-3 px-2 text-right font-semibold text-emerald-700">{moeda(valorLiquidoRecebimento(item))}</td></tr>)}</tbody>
-      </table>
-      <Link href="/valores-recebidos" className="block text-center mt-4 text-xs font-bold text-emerald-700">Ver todos os recebimentos</Link>
+        <tbody>{ultimos.map((item) => <tr key={item.id} className="border-t border-slate-100"><td className="py-3 px-2">{formatarData(item.data)}</td><td className="py-3 px-2">{cortarTexto(item.paciente, 18)}</td><td className="py-3 px-2 text-slate-500">{cortarTexto(nomeEspecie(item.especie), 16)}</td><td className="py-3 px-2 text-right font-semibold text-[#16a34a]">{moeda(valorLiquidoRecebimento(item))}</td></tr>)}</tbody>
+      </table></div>
+      <Link href="/valores-recebidos" className="block text-center mt-4 text-xs font-bold text-[#16a34a]">Ver todos os recebimentos</Link>
     </div>
   );
 }
@@ -583,15 +585,16 @@ function TabelaRecebimentos({ ultimos, moeda, formatarData }: { ultimos: Recebim
 function TabelaVendas({ ultimas, moeda, formatarData }: { ultimas: Venda[]; moeda: (valor: number) => string; formatarData: (data: string) => string; }) {
   return (
     <div className="p-5">
-      <h3 className="font-bold text-sm text-blue-700 mb-3">Últimas Vendas</h3>
-      <table className="w-full text-xs">
+      <h3 className="font-bold text-sm text-[#1d4ed8] mb-3">Últimas Vendas</h3>
+      <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-xs">
         <thead><tr className="bg-slate-50 text-slate-500"><th className="text-left py-3 px-2">Data</th><th className="text-left py-3 px-2">Paciente</th><th className="text-center py-3 px-2">Qtd.</th><th className="text-right py-3 px-2">Valor</th></tr></thead>
         <tbody>{ultimas.map((item) => <tr key={item.id} className="border-t border-slate-100"><td className="py-3 px-2">{formatarData(item.data)}</td><td className="py-3 px-2">{cortarTexto(item.paciente, 18)}</td><td className="py-3 px-2 text-center">{qtdTitulos(item)}</td><td className="py-3 px-2 text-right font-semibold">{moeda(Number(item.valor || 0))}</td></tr>)}</tbody>
-      </table>
-      <Link href="/vendas" className="block text-center mt-4 text-xs font-bold text-blue-700">Ver todas as vendas</Link>
+      </table></div>
+      <Link href="/vendas" className="block text-center mt-4 text-xs font-bold text-[#1d4ed8]">Ver todas as vendas</Link>
     </div>
   );
 }
+
 
 
 
