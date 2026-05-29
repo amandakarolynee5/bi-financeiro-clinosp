@@ -176,6 +176,10 @@ export default function ContasPagasPage() {
     });
   }
 
+  function formatarValorGrafico(value: unknown) {
+    return moeda(Number(value || 0));
+  }
+
   function moedaCompacta(valor: number) {
     const numero = Number(valor || 0);
 
@@ -204,30 +208,6 @@ export default function ContasPagasPage() {
     return criarDataLocal(data).toLocaleDateString("pt-BR", {
       month: "short",
     });
-  }
-
-  function aplicarPeriodoRapido(
-    tipo: "mesAtual" | "janeiro" | "fevereiro" | "ano"
-  ) {
-    if (tipo === "janeiro") {
-      setDataInicio("2026-01-01");
-      setDataFim("2026-01-31");
-    }
-
-    if (tipo === "fevereiro") {
-      setDataInicio("2026-02-01");
-      setDataFim("2026-02-28");
-    }
-
-    if (tipo === "ano") {
-      setDataInicio("2026-01-01");
-      setDataFim("2026-12-31");
-    }
-
-    if (tipo === "mesAtual") {
-      setDataInicio(periodoAtual.inicio);
-      setDataFim(periodoAtual.fim);
-    }
   }
 
   function exportarCSV() {
@@ -355,25 +335,6 @@ export default function ContasPagasPage() {
 
     return semanas;
   }, [dados, dataInicio]);
-
-  const comparativoMensal = useMemo(() => {
-    return [
-      {
-        mes: nomeMes(paraISO(
-          new Date(
-            criarDataLocal(dataInicio).getFullYear(),
-            criarDataLocal(dataInicio).getMonth() - 1,
-            1
-          )
-        )),
-        total: totalMesAnterior,
-      },
-      {
-        mes: nomeMes(dataInicio),
-        total: totalPago,
-      },
-    ];
-  }, [dataInicio, totalMesAnterior, totalPago]);
 
   const comparativoMensalDetalhado = useMemo(() => {
     const atual = criarDataLocal(dataInicio);
@@ -721,7 +682,7 @@ export default function ContasPagasPage() {
                 />
 
                 <Tooltip
-                  formatter={(value: any) => moeda(Number(value))}
+                  formatter={formatarValorGrafico}
                   labelFormatter={(_, payload) =>
                     payload?.[0]?.payload?.nome || ""
                   }
@@ -741,7 +702,7 @@ export default function ContasPagasPage() {
                   <LabelList
                     dataKey="total"
                     position="right"
-                    formatter={(value: number) => moeda(Number(value))}
+                    formatter={formatarValorGrafico}
                     style={{
                       fontSize: 10,
                       fill: "#0f172a",
@@ -958,7 +919,7 @@ export default function ContasPagasPage() {
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={(value: number) => moeda(Number(value))}
+                    formatter={formatarValorGrafico}
                     style={{
                       fontSize: 10,
                       fill: "#0f172a",
@@ -1068,7 +1029,7 @@ export default function ContasPagasPage() {
                       dataKey="total"
                       position="top"
                       offset={10}
-                      formatter={(value: number) => moeda(Number(value))}
+                      formatter={formatarValorGrafico}
                       style={{
                         fontSize: 10,
                         fill: "#0f172a",
@@ -1354,6 +1315,8 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
+
+
 
 
 

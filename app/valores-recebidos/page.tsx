@@ -78,55 +78,53 @@ function getPeriodoAtual() {
   return { inicio: paraISO(primeiro), fim: paraISO(ultimo) };
 }
 
+function renderTickEspecie(props: any) {
+  const { x, y, payload } = props;
 
-  function renderTickEspecie(props: any) {
-    const { x, y, payload } = props;
+  const texto = String(payload.value || "");
+  const palavras = texto.split(" ");
 
-    const texto = String(payload.value || "");
-    const palavras = texto.split(" ");
+  let linha1 = "";
+  let linha2 = "";
 
-    let linha1 = "";
-    let linha2 = "";
+  palavras.forEach((palavra) => {
+    if ((linha1 + " " + palavra).trim().length <= 10) {
+      linha1 = (linha1 + " " + palavra).trim();
+    } else {
+      linha2 = (linha2 + " " + palavra).trim();
+    }
+  });
 
-    palavras.forEach((palavra) => {
-      if ((linha1 + " " + palavra).trim().length <= 10) {
-        linha1 = (linha1 + " " + palavra).trim();
-      } else {
-        linha2 = (linha2 + " " + palavra).trim();
-      }
-    });
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={14}
+        textAnchor="middle"
+        fill="#36577d"
+        fontSize={11}
+        fontWeight={600}
+      >
+        {linha1}
+      </text>
 
-    return (
-      <g transform={`translate(${x},${y})`}>
+      {linha2 && (
         <text
           x={0}
-          y={0}
+          y={16}
           dy={14}
           textAnchor="middle"
           fill="#36577d"
           fontSize={11}
           fontWeight={600}
         >
-          {linha1}
+          {linha2}
         </text>
-
-        {linha2 && (
-          <text
-            x={0}
-            y={16}
-            dy={14}
-            textAnchor="middle"
-            fill="#36577d"
-            fontSize={11}
-            fontWeight={600}
-          >
-            {linha2}
-          </text>
-        )}
-      </g>
-    );
-  }
-
+      )}
+    </g>
+  );
+}
 
 export default function ValoresRecebidosPage() {
   const periodoAtual = getPeriodoAtual();
@@ -203,6 +201,10 @@ export default function ValoresRecebidosPage() {
     return Number(valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   }
 
+  function formatarValorGrafico(value: unknown) {
+    return moeda(Number(value || 0));
+  }
+
   function valorBruto(item: ValorRecebido) {
     return Number(item.valor || 0);
   }
@@ -241,25 +243,6 @@ export default function ValoresRecebidosPage() {
   function formatarData(data: string) {
     if (!data) return "-";
     return criarDataLocal(data).toLocaleDateString("pt-BR");
-  }
-
-  function aplicarPeriodoRapido(tipo: "mesAtual" | "janeiro" | "fevereiro" | "ano") {
-    if (tipo === "janeiro") {
-      setDataInicio("2026-01-01");
-      setDataFim("2026-01-31");
-    }
-    if (tipo === "fevereiro") {
-      setDataInicio("2026-02-01");
-      setDataFim("2026-02-28");
-    }
-    if (tipo === "ano") {
-      setDataInicio("2026-01-01");
-      setDataFim("2026-12-31");
-    }
-    if (tipo === "mesAtual") {
-      setDataInicio(periodoAtual.inicio);
-      setDataFim(periodoAtual.fim);
-    }
   }
 
   function exportarCSV() {
@@ -428,14 +411,16 @@ export default function ValoresRecebidosPage() {
           <select
             onChange={(e) => {
               const mes = Number(e.target.value);
+              const anoAtual = criarDataLocal(dataInicio).getFullYear();
 
-              const inicio = new Date(2026, mes, 1);
-              const fim = new Date(2026, mes + 1, 0);
+              const inicio = new Date(anoAtual, mes, 1);
+              const fim = new Date(anoAtual, mes + 1, 0);
 
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
             className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            value={String(criarDataLocal(dataInicio).getMonth())}
           >
             <option value="0">Janeiro</option>
             <option value="1">Fevereiro</option>
@@ -452,9 +437,22 @@ export default function ValoresRecebidosPage() {
           </select>
 
           <select
+            onChange={(e) => {
+              const ano = Number(e.target.value);
+              const mesAtual = criarDataLocal(dataInicio).getMonth();
+
+              const inicio = new Date(ano, mesAtual, 1);
+              const fim = new Date(ano, mesAtual + 1, 0);
+
+              setDataInicio(paraISO(inicio));
+              setDataFim(paraISO(fim));
+            }}
             className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            value={String(criarDataLocal(dataInicio).getFullYear())}
           >
-            <option>2026</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
           </select>
         </div>
 
@@ -562,7 +560,7 @@ export default function ValoresRecebidosPage() {
                 <YAxis tick={{ fontSize: 11, fill: "#36577d" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: any) => moeda(Number(v))} contentStyle={{ borderRadius: 16, border: "1px solid #dbeafe", boxShadow: "0 12px 30px rgba(15,59,130,0.12)" }} />
                 <Bar dataKey="total" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={42}>
-                  <LabelList dataKey="total" position="top" offset={10} formatter={(value: number) => moeda(Number(value))} style={{ fontSize: 10, fill: "#0f172a", fontWeight: 700 }} />
+                  <LabelList dataKey="total" position="top" offset={10} formatter={formatarValorGrafico} style={{ fontSize: 10, fill: "#0f172a", fontWeight: 700 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -582,7 +580,7 @@ export default function ValoresRecebidosPage() {
                 <YAxis tick={{ fontSize: 11, fill: "#36577d" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
                 <Tooltip formatter={(v: any) => moeda(Number(v))} labelFormatter={(_, payload) => payload?.[0]?.payload?.periodo || ""} />
                 <Bar dataKey="total" fill="#95c11f" radius={[10, 10, 0, 0]} barSize={44}>
-                  <LabelList dataKey="total" position="top" offset={10} formatter={(value: number) => moeda(Number(value))} style={{ fontSize: 10, fill: "#0f172a", fontWeight: 700 }} />
+                  <LabelList dataKey="total" position="top" offset={10} formatter={formatarValorGrafico} style={{ fontSize: 10, fill: "#0f172a", fontWeight: 700 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -633,7 +631,7 @@ export default function ValoresRecebidosPage() {
                   <YAxis tick={{ fontSize: 11, fill: "#36577d" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
                   <Tooltip formatter={(v: any) => moeda(Number(v))} contentStyle={{ borderRadius: 16, border: "1px solid #dbeafe", boxShadow: "0 12px 30px rgba(15,59,130,0.12)" }} />
                   <Bar dataKey="total" fill="#95c11f" radius={[12, 12, 0, 0]} barSize={58}>
-                    <LabelList dataKey="total" position="top" offset={10} formatter={(value: number) => moeda(Number(value))} style={{ fontSize: 10, fill: "#0f172a", fontWeight: 700 }} />
+                    <LabelList dataKey="total" position="top" offset={10} formatter={formatarValorGrafico} style={{ fontSize: 10, fill: "#0f172a", fontWeight: 700 }} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -786,9 +784,4 @@ export default function ValoresRecebidosPage() {
     </AppShell>
   );
 }
-
-
-
-
-
 

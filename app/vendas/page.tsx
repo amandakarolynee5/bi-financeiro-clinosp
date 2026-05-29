@@ -164,6 +164,10 @@ export default function VendasPage() {
     });
   }
 
+  function formatarValorGrafico(value: unknown) {
+    return moeda(Number(value || 0));
+  }
+
   function cortarTexto(texto: string, limite = 18) {
     if (!texto) return "-";
     return texto.length > limite ? texto.slice(0, limite) + "..." : texto;
@@ -772,7 +776,7 @@ export default function VendasPage() {
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={(value: number) => moeda(Number(value))}
+                    formatter={formatarValorGrafico}
                     style={{
                       fontSize: 10,
                       fill: "#0f172a",
@@ -819,7 +823,7 @@ export default function VendasPage() {
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={(value: number) => moeda(Number(value))}
+                    formatter={formatarValorGrafico}
                     style={{
                       fontSize: 10,
                       fill: "#0f172a",
@@ -917,7 +921,7 @@ export default function VendasPage() {
                       dataKey="total"
                       position="top"
                       offset={10}
-                      formatter={(value: number) => moeda(Number(value))}
+                      formatter={formatarValorGrafico}
                       style={{
                         fontSize: 10,
                         fill: "#0f172a",
@@ -1217,5 +1221,6 @@ export default function VendasPage() {
     </AppShell>
   );
 }
+
 
 
