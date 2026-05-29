@@ -406,11 +406,11 @@ export default function VendasPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen space-y-6 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1">
+      <div className="min-h-screen space-y-4 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1 lg:space-y-5 2xl:space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-bold tracking-wide text-[#0f3b82]">BI Financeiro</p>
-            <h1 className="text-4xl font-extrabold tracking-tight text-[#020817]">Vendas</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#020817] 2xl:text-4xl">Vendas</h1>
             <p className="mt-2 text-[#4b6380]">
               Análise detalhada das vendas realizadas por período.
             </p>
@@ -503,7 +503,7 @@ export default function VendasPage() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 2xl:gap-4">
           {[
             {
               titulo: "Total Vendido",
@@ -616,7 +616,7 @@ export default function VendasPage() {
           })}
         </div>
 
-        <div className="grid xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
           <div className="xl:col-span-1 rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#020817]">Evolução das Vendas</h2>
@@ -739,7 +739,7 @@ export default function VendasPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#020817]">
                 Vendas por Faixa de Valor
@@ -789,8 +789,8 @@ export default function VendasPage() {
           </div>
         </div>
 
-        <div className="grid xl:grid-cols-3 gap-6">
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#020817]">Vendas por Dia da Semana</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -835,7 +835,7 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#020817]">Top 5 Maiores Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -843,8 +843,8 @@ export default function VendasPage() {
               </button>
             </div>
 
-            <div className="overflow-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px]">
                 <thead>
                   <tr className="bg-[#f1f7ff] text-xs text-[#36577d]">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
@@ -884,7 +884,7 @@ export default function VendasPage() {
             </button>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-[#020817]">Vendas por Mês</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -892,7 +892,7 @@ export default function VendasPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
+            <div className="grid grid-cols-1 gap-4 items-center xl:grid-cols-[1fr_auto]">
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
                   data={comparativoMensalDetalhado}
@@ -946,8 +946,8 @@ export default function VendasPage() {
           </div>
         </div>
 
-        <div className="grid xl:grid-cols-3 gap-6">
-          <div className="xl:col-span-2 rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:col-span-2 2xl:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
                 <h2 className="text-xl font-bold text-[#020817]">Todas as Vendas</h2>
@@ -994,7 +994,7 @@ export default function VendasPage() {
             ) : (
               <>
                 <div className="overflow-auto rounded-2xl border border-[#dbeafe]">
-                  <table className="w-full">
+                  <table className="w-full min-w-[720px]">
                     <thead>
                       <tr className="bg-[#f1f7ff] text-sm text-[#36577d]">
                         <th className="text-left py-4 px-4">Data</th>
@@ -1067,7 +1067,7 @@ export default function VendasPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <h2 className="font-semibold text-lg mb-4">Indicadores do Período</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1158,7 +1158,7 @@ export default function VendasPage() {
 
         {modalAnalise && (
           <div className="fixed inset-0 z-50 bg-[#020817]/50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl border border-[#dbeafe] max-w-2xl w-full p-6 shadow-2xl">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#dbeafe] bg-white p-4 shadow-2xl 2xl:p-6">
               <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900">
@@ -1221,6 +1221,7 @@ export default function VendasPage() {
     </AppShell>
   );
 }
+
 
 
 

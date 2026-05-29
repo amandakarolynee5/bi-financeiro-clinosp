@@ -213,10 +213,10 @@ export default function ImportarPage() {
     arquivo: ArquivoInfo | null;
   }) {
     return (
-      <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+      <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
         <div className="flex items-center gap-3 mb-5">
           <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center ${cor}`}
+            className={`w-10 h-10 2xl:w-12 2xl:h-12 rounded-2xl flex items-center justify-center ${cor}`}
           >
             <FileSpreadsheet size={24} />
           </div>
@@ -227,7 +227,7 @@ export default function ImportarPage() {
           </div>
         </div>
 
-        <label className="block rounded-3xl border-2 border-dashed border-[#dbeafe] bg-[linear-gradient(135deg,rgba(15,59,130,0.02),rgba(149,193,31,0.04))] p-8 text-center transition hover:border-[#95c11f]/60 hover:bg-[linear-gradient(135deg,rgba(15,59,130,0.04),rgba(149,193,31,0.08))] cursor-pointer">
+        <label className="block rounded-3xl border-2 border-dashed border-[#dbeafe] bg-[linear-gradient(135deg,rgba(15,59,130,0.02),rgba(149,193,31,0.04))] p-5 2xl:p-8 text-center transition hover:border-[#95c11f]/60 hover:bg-[linear-gradient(135deg,rgba(15,59,130,0.04),rgba(149,193,31,0.08))] cursor-pointer">
           <Upload className="mx-auto mb-3 text-[#0f3b82]" size={32} />
 
           <p className="font-semibold text-[#020817]">Selecionar planilha</p>
@@ -259,18 +259,18 @@ export default function ImportarPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen space-y-6 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1">
+      <div className="min-h-screen space-y-4 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1 lg:space-y-5 2xl:space-y-6">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#020817]">
+          <h1 className="text-3xl font-extrabold tracking-tight text-[#020817] 2xl:text-4xl">
             Importar Planilhas
           </h1>
 
-          <p className="mt-2 text-[#4b6380]">
+          <p className="mt-1 text-sm text-[#4b6380] 2xl:mt-2 2xl:text-base">
             Envie as planilhas de contas pagas, valores recebidos e vendas.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3 2xl:gap-6">
           <CardImportacao
             titulo="Contas Pagas"
             cor="bg-[#0f3b82]/10 text-[#0f3b82]"
@@ -293,7 +293,7 @@ export default function ImportarPage() {
           />
         </div>
 
-        <div className="flex items-center justify-between rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
           <div>
             <h2 className="text-xl font-bold text-[#020817]">Pronto para importar</h2>
 
@@ -309,7 +309,7 @@ export default function ImportarPage() {
           <button
             onClick={importarDados}
             disabled={carregando}
-            className="rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-8 py-4 font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)] disabled:opacity-60"
+            className="rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-6 py-3 2xl:px-8 2xl:py-4 font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)] disabled:opacity-60"
           >
             {carregando ? "Importando..." : "Importar Dados"}
           </button>
@@ -318,4 +318,5 @@ export default function ImportarPage() {
     </AppShell>
   );
 }
+
 
