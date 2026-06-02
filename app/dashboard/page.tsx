@@ -162,21 +162,64 @@ export default function DashboardPage() {
     return criarDataLocal(data).toLocaleDateString("pt-BR");
   }
 
+  async function buscarTodos<T>(
+    tabela: string,
+    campos: string,
+    inicioPeriodo: string,
+    fimPeriodo: string,
+    ordenar = true
+  ): Promise<T[]> {
+    let todosDados: T[] = [];
+    let inicio = 0;
+    const limite = 1000;
+
+    while (true) {
+      let consulta = supabase
+        .from(tabela)
+        .select(campos)
+        .gte("data", inicioPeriodo)
+        .lte("data", fimPeriodo)
+        .range(inicio, inicio + limite - 1);
+
+      if (ordenar) {
+        consulta = consulta.order("data", { ascending: false });
+      }
+
+      const { data, error } = await consulta;
+
+      if (error) {
+        console.error(error);
+        return todosDados;
+      }
+
+      if (!data || data.length === 0) {
+        break;
+      }
+
+      todosDados = [...todosDados, ...(data as T[])];
+
+      if (data.length < limite) {
+        break;
+      }
+
+      inicio += limite;
+    }
+
+    return todosDados;
+  }
+
   async function carregarDados() {
     setLoading(true);
-    const [contasRes, recebimentosRes, vendasRes] = await Promise.all([
-      supabase.from("contas_pagas").select("*").gte("data", dataInicio).lte("data", dataFim).order("data", { ascending: false }),
-      supabase.from("recebimentos").select("*").gte("data", dataInicio).lte("data", dataFim).order("data", { ascending: false }),
-      supabase.from("vendas").select("*").gte("data", dataInicio).lte("data", dataFim).order("data", { ascending: false }),
+
+    const [contasDados, recebimentosDados, vendasDados] = await Promise.all([
+      buscarTodos<ContaPaga>("contas_pagas", "*", dataInicio, dataFim),
+      buscarTodos<Recebimento>("recebimentos", "*", dataInicio, dataFim),
+      buscarTodos<Venda>("vendas", "*", dataInicio, dataFim),
     ]);
 
-    if (contasRes.error) console.error(contasRes.error);
-    if (recebimentosRes.error) console.error(recebimentosRes.error);
-    if (vendasRes.error) console.error(vendasRes.error);
-
-    setContas(contasRes.data || []);
-    setRecebimentos(recebimentosRes.data || []);
-    setVendas(vendasRes.data || []);
+    setContas(contasDados);
+    setRecebimentos(recebimentosDados);
+    setVendas(vendasDados);
     setLoading(false);
   }
 
@@ -185,15 +228,16 @@ export default function DashboardPage() {
     const inicioISO = paraISO(new Date(inicio.getFullYear(), inicio.getMonth() - 1, 1));
     const fimISO = paraISO(new Date(inicio.getFullYear(), inicio.getMonth(), 0));
 
-    const [contasRes, recebimentosRes, vendasRes] = await Promise.all([
-      supabase.from("contas_pagas").select("valor").gte("data", inicioISO).lte("data", fimISO),
-      supabase.from("recebimentos").select("valor, valor_tarifas, valor_liquido").gte("data", inicioISO).lte("data", fimISO),
-      supabase.from("vendas").select("valor").gte("data", inicioISO).lte("data", fimISO),
+    const [contasDados, recebimentosDados, vendasDados] = await Promise.all([
+      buscarTodos<Pick<ContaPaga, "valor">>("contas_pagas", "valor", inicioISO, fimISO, false),
+      buscarTodos<Pick<Recebimento, "valor" | "valor_tarifas" | "valor_liquido">>("recebimentos", "valor, valor_tarifas, valor_liquido", inicioISO, fimISO, false),
+      buscarTodos<Pick<Venda, "valor">>("vendas", "valor", inicioISO, fimISO, false),
     ]);
 
-    setMesAnteriorContas((contasRes.data || []).reduce((acc, item) => acc + Number(item.valor || 0), 0));
+    setMesAnteriorContas(contasDados.reduce((acc, item) => acc + Number(item.valor || 0), 0));
+
     setMesAnteriorRecebimentos(
-      (recebimentosRes.data || []).reduce((acc: number, item: any) => {
+      recebimentosDados.reduce((acc: number, item: any) => {
         const liquido =
           item.valor_liquido !== null && item.valor_liquido !== undefined
             ? Number(item.valor_liquido || 0)
@@ -201,7 +245,8 @@ export default function DashboardPage() {
         return acc + liquido;
       }, 0)
     );
-    setMesAnteriorVendas((vendasRes.data || []).reduce((acc, item) => acc + Number(item.valor || 0), 0));
+
+    setMesAnteriorVendas(vendasDados.reduce((acc, item) => acc + Number(item.valor || 0), 0));
   }
 
 
@@ -594,6 +639,7 @@ function TabelaVendas({ ultimas, moeda, formatarData }: { ultimas: Venda[]; moed
     </div>
   );
 }
+
 
 
 

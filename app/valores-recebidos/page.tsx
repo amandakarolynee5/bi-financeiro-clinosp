@@ -152,20 +152,39 @@ export default function ValoresRecebidosPage() {
   async function carregarDados() {
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("recebimentos")
-      .select("*")
-      .gte("data", dataInicio)
-      .lte("data", dataFim)
-      .order("data", { ascending: false });
+    let todosDados: ValorRecebido[] = [];
+    let inicio = 0;
+    const limite = 1000;
 
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
+    while (true) {
+      const { data, error } = await supabase
+        .from("recebimentos")
+        .select("*")
+        .gte("data", dataInicio)
+        .lte("data", dataFim)
+        .order("data", { ascending: false })
+        .range(inicio, inicio + limite - 1);
+
+      if (error) {
+        console.error(error);
+        setLoading(false);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        break;
+      }
+
+      todosDados = [...todosDados, ...data];
+
+      if (data.length < limite) {
+        break;
+      }
+
+      inicio += limite;
     }
 
-    setDados(data || []);
+    setDados(todosDados);
     setLoading(false);
   }
 
@@ -174,18 +193,37 @@ export default function ValoresRecebidosPage() {
     const inicioAnterior = new Date(inicio.getFullYear(), inicio.getMonth() - 1, 1);
     const fimAnterior = new Date(inicio.getFullYear(), inicio.getMonth(), 0);
 
-    const { data, error } = await supabase
-      .from("recebimentos")
-      .select("valor, valor_tarifas, valor_liquido")
-      .gte("data", paraISO(inicioAnterior))
-      .lte("data", paraISO(fimAnterior));
+    let todosDados: Pick<ValorRecebido, "valor" | "valor_tarifas" | "valor_liquido">[] = [];
+    let pagina = 0;
+    const limite = 1000;
 
-    if (error) {
-      console.error(error);
-      return;
+    while (true) {
+      const { data, error } = await supabase
+        .from("recebimentos")
+        .select("valor, valor_tarifas, valor_liquido")
+        .gte("data", paraISO(inicioAnterior))
+        .lte("data", paraISO(fimAnterior))
+        .range(pagina * limite, (pagina + 1) * limite - 1);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        break;
+      }
+
+      todosDados = [...todosDados, ...data];
+
+      if (data.length < limite) {
+        break;
+      }
+
+      pagina++;
     }
 
-    const total = (data || []).reduce((acc: number, item: any) => {
+    const total = todosDados.reduce((acc: number, item: any) => {
       const liquido =
         item.valor_liquido !== null && item.valor_liquido !== undefined
           ? Number(item.valor_liquido || 0)
@@ -784,5 +822,6 @@ export default function ValoresRecebidosPage() {
     </AppShell>
   );
 }
+
 
 

@@ -118,20 +118,39 @@ export default function ContasPagasPage() {
   async function carregarDados() {
     setLoading(true);
 
-    const { data, error } = await supabase
-      .from("contas_pagas")
-      .select("*")
-      .gte("data", dataInicio)
-      .lte("data", dataFim)
-      .order("data", { ascending: false });
+    let todosDados: ContaPaga[] = [];
+    let inicio = 0;
+    const limite = 1000;
 
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
+    while (true) {
+      const { data, error } = await supabase
+        .from("contas_pagas")
+        .select("*")
+        .gte("data", dataInicio)
+        .lte("data", dataFim)
+        .order("data", { ascending: false })
+        .range(inicio, inicio + limite - 1);
+
+      if (error) {
+        console.error(error);
+        setLoading(false);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        break;
+      }
+
+      todosDados = [...todosDados, ...data];
+
+      if (data.length < limite) {
+        break;
+      }
+
+      inicio += limite;
     }
 
-    setDados(data || []);
+    setDados(todosDados);
     setLoading(false);
   }
 
@@ -150,18 +169,37 @@ export default function ContasPagasPage() {
       0
     );
 
-    const { data, error } = await supabase
-      .from("contas_pagas")
-      .select("valor")
-      .gte("data", paraISO(inicioAnterior))
-      .lte("data", paraISO(fimAnterior));
+    let todosDados: { valor: number }[] = [];
+    let pagina = 0;
+    const limite = 1000;
 
-    if (error) {
-      console.error(error);
-      return;
+    while (true) {
+      const { data, error } = await supabase
+        .from("contas_pagas")
+        .select("valor")
+        .gte("data", paraISO(inicioAnterior))
+        .lte("data", paraISO(fimAnterior))
+        .range(pagina * limite, (pagina + 1) * limite - 1);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        break;
+      }
+
+      todosDados = [...todosDados, ...data];
+
+      if (data.length < limite) {
+        break;
+      }
+
+      pagina++;
     }
 
-    const total = (data || []).reduce(
+    const total = todosDados.reduce(
       (acc, item) => acc + Number(item.valor || 0),
       0
     );
@@ -1318,6 +1356,7 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
+
 
 
 
