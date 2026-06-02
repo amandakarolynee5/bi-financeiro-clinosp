@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "../lib/supabase";
 import {
   LayoutDashboard,
   ReceiptText,
@@ -10,7 +11,7 @@ import {
   BarChart3,
   Upload,
   ChevronRight,
-  Crown,
+  LogOut,
 } from "lucide-react";
 
 const menu = [
@@ -43,6 +44,12 @@ const menu = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function sair() {
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-50 hidden h-screen overflow-hidden border-r border-[#16365f]/60 bg-[#020817] text-white shadow-[0_0_80px_rgba(15,59,130,0.22)] lg:block lg:w-64 2xl:w-72">
@@ -140,31 +147,39 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* Card inferior sem usuário */}
-        <div className="mt-auto hidden xl:block">
-          <div className="relative overflow-hidden rounded-[26px] border border-[#95c11f]/25 bg-gradient-to-br from-[#071326] via-[#08172c] to-[#101d1f] p-4 shadow-[0_0_45px_rgba(149,193,31,0.10)] 2xl:rounded-[28px] 2xl:p-5">
-            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#95c11f]/10 blur-2xl" />
 
-            <div className="relative flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#95c11f]/30 bg-[#95c11f]/10 text-[#d9ff74] shadow-[0_0_30px_rgba(149,193,31,0.15)] 2xl:h-14 2xl:w-14">
-                <Crown size={23} strokeWidth={2.2} />
+        {/* Botão sair */}
+        <div className="mt-auto pt-4">
+          <button
+            onClick={sair}
+            className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl border border-[#3b82f6]/30 bg-gradient-to-r from-[#0f3b82] via-[#1d4ed8] to-[#2563eb] px-3.5 py-3 text-white shadow-[0_14px_45px_rgba(37,99,235,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#95c11f]/40 hover:shadow-[0_18px_55px_rgba(37,99,235,0.38)] 2xl:px-4 2xl:py-3.5"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-white/8 via-transparent to-[#95c11f]/10" />
+
+            <div className="relative flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-inner transition group-hover:bg-white/20 2xl:h-11 2xl:w-11">
+                <LogOut size={18} strokeWidth={2.2} />
               </div>
 
-              <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#d9ff74]">
-                  Sistema Premium
-                </p>
-
-                <p className="mt-1 text-xs leading-5 text-slate-300 2xl:text-sm">
-                  Gestão inteligente para clínicas odontológicas.
+              <div className="text-left">
+                <p className="text-sm font-bold">Sair</p>
+                <p className="text-[10px] font-medium text-blue-100/80">
+                  Encerrar sessão
                 </p>
               </div>
             </div>
-          </div>
+
+            <ChevronRight
+              size={18}
+              className="relative text-white/80 transition group-hover:translate-x-1"
+            />
+          </button>
         </div>
       </div>
     </aside>
   );
 }
+
+
 
 
