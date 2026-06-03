@@ -1095,8 +1095,8 @@ export default function ContasPagasPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6 min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
                 <h2 className="text-lg font-bold text-[#020817] 2xl:text-xl">Todos os Pagamentos</h2>
@@ -1143,7 +1143,7 @@ export default function ContasPagasPage() {
             ) : (
               <>
                 <div className="overflow-auto rounded-2xl border border-[#dbeafe]">
-                  <table className="w-full min-w-[680px]">
+                  <table className="w-full min-w-[850px]">
                     <thead>
                       <tr className="bg-[#f1f7ff] text-sm text-[#36577d]">
                         <th className="text-left py-4 px-4">Data</th>
@@ -1214,7 +1214,7 @@ export default function ContasPagasPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6 h-fit">
             <h2 className="font-semibold text-lg mb-4">
               Indicadores do Período
             </h2>
@@ -1356,6 +1356,7 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
+
 
 
 
