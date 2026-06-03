@@ -47,8 +47,17 @@ export default function Sidebar() {
   const router = useRouter();
 
   async function sair() {
-    await supabase.auth.signOut();
-    router.push("/login");
+    try {
+      await supabase.auth.signOut();
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Erro ao sair:", error);
+    }
   }
 
   return (
@@ -101,63 +110,41 @@ export default function Sidebar() {
                     : "border-white/5 bg-white/[0.035] text-slate-300 hover:border-[#3b82f6]/25 hover:bg-white/[0.07] hover:text-white"
                 }`}
               >
-                {ativo && (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/8 via-transparent to-[#95c11f]/10" />
-                    <div className="absolute left-0 top-1/2 h-10 w-1 -translate-y-1/2 rounded-r-full bg-[#95c11f]" />
-                  </>
-                )}
-
                 <div className="relative flex min-w-0 items-center gap-3">
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition 2xl:h-11 2xl:w-11 ${
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
                       ativo
-                        ? "bg-white/15 text-white shadow-inner"
-                        : "bg-white/[0.06] text-slate-300 group-hover:bg-[#0f3b82]/30 group-hover:text-white"
+                        ? "bg-white/15 text-white"
+                        : "bg-white/[0.06] text-slate-300"
                     }`}
                   >
                     <Icon size={18} strokeWidth={2.2} />
                   </div>
 
                   <div className="min-w-0">
-                    <p
-                      className={`truncate text-sm font-bold ${
-                        ativo ? "text-white" : "text-slate-100"
-                      }`}
-                    >
+                    <p className="truncate text-sm font-bold">
                       {item.nome}
                     </p>
-
                     <p className="truncate text-[10px] font-medium text-slate-400">
                       Gestão financeira
                     </p>
                   </div>
                 </div>
 
-                <ChevronRight
-                  size={18}
-                  className={`relative shrink-0 transition ${
-                    ativo
-                      ? "translate-x-0 text-white"
-                      : "-translate-x-1 text-slate-500 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
-                  }`}
-                />
+                <ChevronRight size={18} />
               </Link>
             );
           })}
         </nav>
 
-
         {/* Botão sair */}
         <div className="mt-auto pt-4">
           <button
             onClick={sair}
-            className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl border border-[#3b82f6]/30 bg-gradient-to-r from-[#0f3b82] via-[#1d4ed8] to-[#2563eb] px-3.5 py-3 text-white shadow-[0_14px_45px_rgba(37,99,235,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#95c11f]/40 hover:shadow-[0_18px_55px_rgba(37,99,235,0.38)] 2xl:px-4 2xl:py-3.5"
+            className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl border border-[#3b82f6]/30 bg-gradient-to-r from-[#0f3b82] via-[#1d4ed8] to-[#2563eb] px-3.5 py-3 text-white"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-white/8 via-transparent to-[#95c11f]/10" />
-
             <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-inner transition group-hover:bg-white/20 2xl:h-11 2xl:w-11">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
                 <LogOut size={18} strokeWidth={2.2} />
               </div>
 
@@ -169,17 +156,10 @@ export default function Sidebar() {
               </div>
             </div>
 
-            <ChevronRight
-              size={18}
-              className="relative text-white/80 transition group-hover:translate-x-1"
-            />
+            <ChevronRight size={18} />
           </button>
         </div>
       </div>
     </aside>
   );
 }
-
-
-
-
