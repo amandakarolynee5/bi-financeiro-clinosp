@@ -58,7 +58,6 @@ export default function LoginPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#020817] text-white">
-      {/* Fundo premium */}
       <div className="absolute inset-0">
         <div className="absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/50 blur-[110px]" />
         <div className="absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/20 blur-[120px]" />
@@ -68,7 +67,6 @@ export default function LoginPage() {
       </div>
 
       <section className="relative z-10 grid min-h-screen grid-cols-1 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* Lado institucional */}
         <div className="hidden flex-col justify-between p-10 lg:flex 2xl:p-14">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-[0.20em] text-[#d9ff74] shadow-[0_12px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl">
@@ -108,21 +106,9 @@ export default function LoginPage() {
 
           <div className="grid max-w-4xl grid-cols-3 gap-4">
             {[
-              {
-                titulo: "Financeiro",
-                valor: "BI completo",
-                Icon: WalletCards,
-              },
-              {
-                titulo: "Indicadores",
-                valor: "Tempo real",
-                Icon: TrendingUp,
-              },
-              {
-                titulo: "Gestão",
-                valor: "Premium",
-                Icon: BarChart3,
-              },
+              { titulo: "Financeiro", valor: "BI completo", Icon: WalletCards },
+              { titulo: "Indicadores", valor: "Tempo real", Icon: TrendingUp },
+              { titulo: "Gestão", valor: "Premium", Icon: BarChart3 },
             ].map((item) => {
               const Icon = item.Icon;
 
@@ -147,7 +133,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Card login */}
         <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-10 2xl:p-14">
           <div className="w-full max-w-[520px]">
             <div className="mb-8 flex justify-center lg:hidden">
@@ -163,23 +148,24 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-[2.25rem] border border-white/15 bg-white/[0.10] p-1 shadow-[0_40px_120px_rgba(0,0,0,0.42)] backdrop-blur-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/18 via-white/6 to-[#95c11f]/10" />
-              <div className="relative rounded-[2rem] border border-white/10 bg-[#f8fbff]/95 p-6 text-[#020817] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:p-8 2xl:p-10">
+            <div className="relative overflow-hidden rounded-[2.25rem] border border-[#1d4ed8]/30 bg-[#0b1220]/70 p-1 shadow-[0_40px_120px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1d4ed8]/25 via-white/5 to-[#95c11f]/10" />
+
+              <div className="relative rounded-[2rem] border border-white/10 bg-[#0b1220]/95 p-6 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-8 2xl:p-10">
                 <div className="mb-8 text-center">
-                  <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#0f3b82] to-[#1d4ed8] text-white shadow-[0_20px_50px_rgba(29,78,216,0.35)]">
+                  <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#0f3b82] to-[#2563eb] text-white shadow-[0_20px_50px_rgba(29,78,216,0.45)]">
                     <ShieldCheck size={34} />
                   </div>
 
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[#0f3b82]">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-[#95c11f]">
                     Acesso seguro
                   </p>
 
-                  <h2 className="mt-3 text-3xl font-black tracking-tight text-[#020817] sm:text-4xl">
+                  <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
                     Entrar no sistema
                   </h2>
 
-                  <p className="mt-3 text-sm leading-6 text-slate-500">
+                  <p className="mt-3 text-sm leading-6 text-slate-400">
                     Use seu acesso autorizado para visualizar o painel
                     financeiro da Clinosp Prime.
                   </p>
@@ -187,13 +173,13 @@ export default function LoginPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                    <label className="mb-2 block text-sm font-bold text-slate-300">
                       E-mail
                     </label>
 
                     <div className="relative">
                       <Mail
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                         size={18}
                       />
 
@@ -202,19 +188,19 @@ export default function LoginPage() {
                         placeholder="seuemail@clinosp.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full rounded-2xl border border-[#dbeafe] bg-white px-4 py-4 pl-12 text-sm font-medium outline-none transition focus:border-[#95c11f] focus:ring-4 focus:ring-[#95c11f]/15"
+                        className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 pl-12 text-sm font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-[#95c11f]/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-[#95c11f]/10"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-700">
+                    <label className="mb-2 block text-sm font-bold text-slate-300">
                       Senha
                     </label>
 
                     <div className="relative">
                       <Lock
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                         size={18}
                       />
 
@@ -226,13 +212,13 @@ export default function LoginPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") fazerLogin();
                         }}
-                        className="w-full rounded-2xl border border-[#dbeafe] bg-white px-4 py-4 pl-12 pr-12 text-sm font-medium outline-none transition focus:border-[#95c11f] focus:ring-4 focus:ring-[#95c11f]/15"
+                        className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 pl-12 pr-12 text-sm font-medium text-white outline-none transition placeholder:text-slate-500 focus:border-[#95c11f]/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-[#95c11f]/10"
                       />
 
                       <button
                         type="button"
                         onClick={() => setMostrarSenha(!mostrarSenha)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-[#0f3b82]"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-[#95c11f]"
                       >
                         {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
@@ -240,7 +226,7 @@ export default function LoginPage() {
                   </div>
 
                   {erro && (
-                    <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600">
+                    <div className="rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300">
                       {erro}
                     </div>
                   )}
@@ -248,7 +234,7 @@ export default function LoginPage() {
                   <button
                     onClick={fazerLogin}
                     disabled={loading}
-                    className="group mt-2 flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#0f3b82] via-[#1d4ed8] to-[#2563eb] px-5 py-4 font-black text-white shadow-[0_20px_50px_rgba(29,78,216,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(29,78,216,0.45)] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="group mt-2 flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#0f3b82] via-[#1d4ed8] to-[#2563eb] px-5 py-4 font-black text-white shadow-[0_20px_50px_rgba(29,78,216,0.45)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_70px_rgba(29,78,216,0.58)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loading ? "Entrando..." : "Entrar no sistema"}
                     <ArrowRight
@@ -258,24 +244,24 @@ export default function LoginPage() {
                   </button>
                 </div>
 
-                <div className="mt-8 rounded-3xl border border-[#dbeafe] bg-gradient-to-br from-white to-[#f3f8ea] p-4">
+                <div className="mt-8 rounded-3xl border border-[#95c11f]/20 bg-[#111c2f] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#95c11f]/20 text-[#6b7f16]">
+                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-[#95c11f]/15 text-[#d9ff74]">
                       <ShieldCheck size={18} />
                     </div>
 
                     <div>
-                      <p className="text-sm font-black text-[#020817]">
+                      <p className="text-sm font-black text-white">
                         Ambiente protegido
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
+                      <p className="mt-1 text-xs leading-5 text-slate-400">
                         Acesso restrito a usuários autorizados da Clinosp Prime.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <p className="mt-7 text-center text-xs font-medium text-slate-400">
+                <p className="mt-7 text-center text-xs font-medium text-slate-500">
                   Clinosp Prime • Inteligência Financeira Premium
                 </p>
               </div>
@@ -286,4 +272,3 @@ export default function LoginPage() {
     </main>
   );
 }
-

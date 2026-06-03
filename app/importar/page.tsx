@@ -213,7 +213,7 @@ export default function ImportarPage() {
     arquivo: ArquivoInfo | null;
   }) {
     return (
-      <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
         <div className="flex items-center gap-3 mb-5">
           <div
             className={`w-10 h-10 2xl:w-12 2xl:h-12 rounded-2xl flex items-center justify-center ${cor}`}
@@ -222,16 +222,16 @@ export default function ImportarPage() {
           </div>
 
           <div>
-            <h2 className="text-lg font-bold text-[#020817]">{titulo}</h2>
-            <p className="text-sm text-[#4b6380]">Arquivo Excel</p>
+            <h2 className="text-lg font-bold text-white">{titulo}</h2>
+            <p className="text-sm text-slate-400">Arquivo Excel</p>
           </div>
         </div>
 
-        <label className="block rounded-3xl border-2 border-dashed border-[#dbeafe] bg-[linear-gradient(135deg,rgba(15,59,130,0.02),rgba(149,193,31,0.04))] p-5 2xl:p-8 text-center transition hover:border-[#95c11f]/60 hover:bg-[linear-gradient(135deg,rgba(15,59,130,0.04),rgba(149,193,31,0.08))] cursor-pointer">
-          <Upload className="mx-auto mb-3 text-[#0f3b82]" size={32} />
+        <label className="block cursor-pointer rounded-3xl border-2 border-dashed border-white/10 bg-white/[0.04] p-5 text-center transition hover:border-[#95c11f]/60 hover:bg-white/[0.08] 2xl:p-8">
+          <Upload className="mx-auto mb-3 text-[#3b82f6]" size={32} />
 
-          <p className="font-semibold text-[#020817]">Selecionar planilha</p>
-          <p className="mt-1 text-sm text-[#4b6380]">.xlsx ou .csv</p>
+          <p className="font-semibold text-white">Selecionar planilha</p>
+          <p className="mt-1 text-sm text-slate-400">.xlsx ou .csv</p>
 
           <input
             type="file"
@@ -246,8 +246,8 @@ export default function ImportarPage() {
             <CheckCircle className="text-[#16a34a]" size={22} />
 
             <div>
-              <p className="font-semibold text-[#0f3b82]">{arquivo.nome}</p>
-              <p className="text-sm text-[#6b7f16]">
+              <p className="font-semibold text-[#3b82f6]">{arquivo.nome}</p>
+              <p className="text-sm text-[#95c11f]">
                 {arquivo.registros} registros encontrados
               </p>
             </div>
@@ -259,13 +259,19 @@ export default function ImportarPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen space-y-4 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1 lg:space-y-5 2xl:space-y-6">
+      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+        <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_35%),linear-gradient(135deg,rgba(15,59,130,0.24),transparent_45%,rgba(149,193,31,0.08))]" />
+
+        <div className="relative z-10 space-y-4 lg:space-y-5 2xl:space-y-6">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#020817] 2xl:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white 2xl:text-4xl">
             Importar Planilhas
           </h1>
 
-          <p className="mt-1 text-sm text-[#4b6380] 2xl:mt-2 2xl:text-base">
+          <p className="mt-1 text-sm text-slate-400 2xl:mt-2 2xl:text-base">
             Envie as planilhas de contas pagas, valores recebidos e vendas.
           </p>
         </div>
@@ -273,7 +279,7 @@ export default function ImportarPage() {
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3 2xl:gap-6">
           <CardImportacao
             titulo="Contas Pagas"
-            cor="bg-[#0f3b82]/10 text-[#0f3b82]"
+            cor="bg-[#1d4ed8]/15 text-[#3b82f6]"
             tipo="contas"
             arquivo={contasPagas}
           />
@@ -287,7 +293,7 @@ export default function ImportarPage() {
 
           <CardImportacao
             titulo="Vendas"
-            cor="bg-[#1d4ed8]/10 text-[#1d4ed8]"
+            cor="bg-[#1d4ed8]/15 text-[#3b82f6]"
             tipo="vendas"
             arquivo={vendas}
           />
@@ -295,14 +301,14 @@ export default function ImportarPage() {
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
           <div>
-            <h2 className="text-xl font-bold text-[#020817]">Pronto para importar</h2>
+            <h2 className="text-xl font-bold text-white">Pronto para importar</h2>
 
-            <p className="mt-1 text-sm text-[#4b6380]">
+            <p className="mt-1 text-sm text-slate-400">
               Após selecionar as planilhas, clique para processar os dados.
             </p>
 
             {mensagem && (
-              <p className="mt-3 font-semibold text-[#0f3b82]">{mensagem}</p>
+              <p className="mt-3 font-semibold text-[#3b82f6]">{mensagem}</p>
             )}
           </div>
 
@@ -314,9 +320,11 @@ export default function ImportarPage() {
             {carregando ? "Importando..." : "Importar Dados"}
           </button>
         </div>
+        </div>
       </div>
     </AppShell>
   );
 }
+
 
 

@@ -191,7 +191,7 @@ export default function VendasPage() {
             y={index * 13}
             dy={14}
             textAnchor="middle"
-            fill="#36577d"
+            fill="#94a3b8"
             fontSize={11}
             fontWeight={600}
           >
@@ -406,12 +406,18 @@ export default function VendasPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen space-y-4 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1 lg:space-y-5 2xl:space-y-6">
+      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+        <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
+        <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_35%),linear-gradient(135deg,rgba(15,59,130,0.24),transparent_45%,rgba(149,193,31,0.08))]" />
+
+        <div className="relative z-10 space-y-4 lg:space-y-5 2xl:space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-bold tracking-wide text-[#0f3b82]">BI Financeiro</p>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#020817] 2xl:text-4xl">Vendas</h1>
-            <p className="mt-2 text-[#4b6380]">
+            <p className="text-sm font-bold tracking-wide text-[#95c11f]">BI Financeiro</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white 2xl:text-4xl">Vendas</h1>
+            <p className="mt-2 text-slate-400">
               Análise detalhada das vendas realizadas por período.
             </p>
           </div>
@@ -419,19 +425,19 @@ export default function VendasPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/importar"
-              className="rounded-2xl border border-[#0f3b82]/20 bg-white px-5 py-3 font-semibold text-[#0f3b82] shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]"
+              className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06]/[0.06] px-5 py-3 font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]"
             >
               Importar Planilhas
             </Link>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-4 py-3 text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
               <CalendarDays size={18} className="text-[#0f3b82]" />
 
               <input
                 type="date"
                 value={dataInicio}
                 onChange={(e) => setDataInicio(e.target.value)}
-                className="outline-none text-sm"
+                className="bg-transparent outline-none text-sm text-slate-200 [color-scheme:dark]"
               />
 
               <span className="text-slate-400">até</span>
@@ -440,7 +446,7 @@ export default function VendasPage() {
                 type="date"
                 value={dataFim}
                 onChange={(e) => setDataFim(e.target.value)}
-                className="outline-none text-sm"
+                className="bg-transparent outline-none text-sm text-slate-200 [color-scheme:dark]"
               />
             </div>
 
@@ -466,21 +472,21 @@ export default function VendasPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
             defaultValue={String(criarDataLocal(dataInicio).getMonth())}
           >
-            <option value="0">Janeiro</option>
-            <option value="1">Fevereiro</option>
-            <option value="2">Março</option>
-            <option value="3">Abril</option>
-            <option value="4">Maio</option>
-            <option value="5">Junho</option>
-            <option value="6">Julho</option>
-            <option value="7">Agosto</option>
-            <option value="8">Setembro</option>
-            <option value="9">Outubro</option>
-            <option value="10">Novembro</option>
-            <option value="11">Dezembro</option>
+            <option className="bg-[#0f1f3a] text-white" value="0">Janeiro</option>
+            <option className="bg-[#0f1f3a] text-white" value="1">Fevereiro</option>
+            <option className="bg-[#0f1f3a] text-white" value="2">Março</option>
+            <option className="bg-[#0f1f3a] text-white" value="3">Abril</option>
+            <option className="bg-[#0f1f3a] text-white" value="4">Maio</option>
+            <option className="bg-[#0f1f3a] text-white" value="5">Junho</option>
+            <option className="bg-[#0f1f3a] text-white" value="6">Julho</option>
+            <option className="bg-[#0f1f3a] text-white" value="7">Agosto</option>
+            <option className="bg-[#0f1f3a] text-white" value="8">Setembro</option>
+            <option className="bg-[#0f1f3a] text-white" value="9">Outubro</option>
+            <option className="bg-[#0f1f3a] text-white" value="10">Novembro</option>
+            <option className="bg-[#0f1f3a] text-white" value="11">Dezembro</option>
           </select>
 
           <select
@@ -494,12 +500,12 @@ export default function VendasPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
             defaultValue={String(criarDataLocal(dataInicio).getFullYear())}
           >
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
+            <option className="bg-[#0f1f3a] text-white" value="2025">2025</option>
+            <option className="bg-[#0f1f3a] text-white" value="2026">2026</option>
+            <option className="bg-[#0f1f3a] text-white" value="2027">2027</option>
           </select>
         </div>
 
@@ -509,27 +515,27 @@ export default function VendasPage() {
               titulo: "Total Vendido",
               valor: moeda(totalVendido),
               detalhe: variacaoTexto,
-              cor: "text-[#0f3b82]",
+              cor: "text-[#3b82f6]",
               iconBg: "bg-[#0f3b82]/10",
-              iconColor: "text-[#0f3b82]",
+              iconColor: "text-[#3b82f6]",
               Icon: WalletCards,
             },
             {
               titulo: "Ticket Médio",
               valor: moeda(ticketMedio),
               detalhe: "por venda",
-              cor: "text-[#1d4ed8]",
+              cor: "text-[#3b82f6]",
               iconBg: "bg-[#1d4ed8]/10",
-              iconColor: "text-[#1d4ed8]",
+              iconColor: "text-[#3b82f6]",
               Icon: Tag,
             },
             {
               titulo: "Quantidade de Vendas",
               valor: quantidadeVendas,
               detalhe: "vendas realizadas",
-              cor: "text-[#1d4ed8]",
-              iconBg: "bg-[#dbeafe]",
-              iconColor: "text-[#0f3b82]",
+              cor: "text-[#3b82f6]",
+              iconBg: "bg-[#1d4ed8]/15",
+              iconColor: "text-[#3b82f6]",
               Icon: ShoppingCart,
             },
             {
@@ -554,9 +560,9 @@ export default function VendasPage() {
               titulo: "Total de Títulos",
               valor: totalTitulos,
               detalhe: "no período",
-              cor: "text-[#0f3b82]",
-              iconBg: "bg-[#dbeafe]",
-              iconColor: "text-[#0f3b82]",
+              cor: "text-[#3b82f6]",
+              iconBg: "bg-[#1d4ed8]/15",
+              iconColor: "text-[#3b82f6]",
               Icon: FileText,
             },
           ].map((item) => {
@@ -565,48 +571,25 @@ export default function VendasPage() {
             return (
               <div
                 key={item.titulo}
-                className="
-                  rounded-3xl
-                  border
-                  border-[#dbeafe]
-                  bg-white/90
-                  p-5
-                  shadow-[0_18px_45px_rgba(15,59,130,0.08)]
-                  backdrop-blur-sm
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                  hover:border-[#95c11f]/30
-                  hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)]
-                "
+                className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:min-h-[152px] 2xl:p-5 2xl:pr-16"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div>
                   <div className="min-w-0">
-                    <p className="text-xs text-slate-500 font-medium">
+                    <p className="text-xs text-slate-400 font-medium">
                       {item.titulo}
                     </p>
 
-                    <h2 className={`text-2xl font-bold mt-3 ${item.cor}`}>
+                    <h2 className={`mt-3 whitespace-nowrap text-xl font-bold leading-tight ${item.cor} 2xl:mt-4 2xl:text-2xl`}>
                       {item.valor}
                     </h2>
 
-                    <p className="text-[11px] text-slate-400 mt-2">
+                    <p className="mt-3 text-[11px] text-slate-400">
                       {item.detalhe}
                     </p>
                   </div>
 
                   <div
-                    className={`
-                      ${item.iconBg}
-                      ${item.iconColor}
-                      w-12
-                      h-12
-                      rounded-2xl
-                      flex
-                      items-center
-                      justify-center
-                      shrink-0
-                    `}
+                    className={`${item.iconBg} ${item.iconColor} absolute right-2 top-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl 2xl:right-3 2xl:top-3 2xl:h-14 2xl:w-14`}
                   >
                     <Icon size={23} strokeWidth={2.4} />
                   </div>
@@ -617,9 +600,9 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="xl:col-span-1 rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
+          <div className="xl:col-span-1 rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[#020817]">Evolução das Vendas</h2>
+              <h2 className="text-lg font-bold text-white">Evolução das Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -627,7 +610,7 @@ export default function VendasPage() {
 
             <ResponsiveContainer width="100%" height={420}>
               <LineChart data={porDia} margin={{ top: 16, right: 20, left: 0, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
 
                 <XAxis
                   dataKey="data"
@@ -637,26 +620,22 @@ export default function VendasPage() {
                       month: "2-digit",
                     })
                   }
-                  tick={{ fontSize: 11, fill: "#36577d", fontWeight: 600 }}
+                  tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
                   axisLine={false}
                   tickLine={false}
                 />
 
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#36577d" }}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
                   tickFormatter={(value) => `${Number(value) / 1000}k`}
                   axisLine={false}
                   tickLine={false}
                 />
 
                 <Tooltip
-                  formatter={(v: any) => moeda(Number(v))}
+                  formatter={(v: any) => [moeda(Number(v)), "Total"]}
                   labelFormatter={(label) => formatarData(String(label))}
-                  contentStyle={{
-                    borderRadius: 16,
-                    border: "1px solid #dbeafe",
-                    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.12)",
-                  }}
+                  contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }}
                 />
 
                 <Line
@@ -671,9 +650,9 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm min-h-[420px]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl min-h-[420px]">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-[#020817]">Vendas por Faixa de Valor</h2>
+              <h2 className="text-lg font-bold text-white">Vendas por Faixa de Valor</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -690,7 +669,7 @@ export default function VendasPage() {
                       innerRadius={58}
                       outerRadius={88}
                       paddingAngle={1}
-                      stroke="#ffffff"
+                      stroke="#020817"
                       strokeWidth={2}
                     >
                       {porFaixa.map((_, i) => (
@@ -698,14 +677,14 @@ export default function VendasPage() {
                       ))}
                     </Pie>
 
-                    <Tooltip formatter={(v: any) => moeda(Number(v))} />
+                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
                   </PieChart>
                 </ResponsiveContainer>
 
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="text-center">
-                    <p className="text-[11px] text-slate-500 font-semibold">Total</p>
-                    <p className="text-sm font-bold text-slate-950 leading-4">
+                    <p className="text-[11px] text-slate-400 font-semibold">Total</p>
+                    <p className="text-sm font-bold text-white leading-4">
                       {moeda(totalVendido)}
                     </p>
                   </div>
@@ -724,13 +703,13 @@ export default function VendasPage() {
                     />
 
                     <span
-                      className="text-slate-700 font-medium truncate"
+                      className="text-slate-300 font-medium truncate"
                       title={item.nome}
                     >
                       {item.nome}
                     </span>
 
-                    <span className="font-bold text-slate-950">
+                    <span className="font-bold text-white">
                       {(item.percentual || 0).toFixed(1).replace(".", ",")}%
                     </span>
                   </div>
@@ -739,9 +718,9 @@ export default function VendasPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[#020817]">
+              <h2 className="text-lg font-bold text-white">
                 Vendas por Faixa de Valor
               </h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -751,7 +730,7 @@ export default function VendasPage() {
 
             <ResponsiveContainer width="100%" height={460}>
               <BarChart data={porFaixa} margin={{ top: 30, right: 16, left: 0, bottom: 48 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
 
                 <XAxis
                   dataKey="nomeCurto"
@@ -763,23 +742,23 @@ export default function VendasPage() {
                 />
 
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#36577d" }}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
                   tickFormatter={(value) => `${Number(value) / 1000}k`}
                   tickLine={false}
                   axisLine={false}
                 />
 
-                <Tooltip formatter={(v: any) => moeda(Number(v))} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
 
                 <Bar dataKey="total" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={48}>
                   <LabelList
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={formatarValorGrafico}
+                    formatter={(v: any) => moeda(Number(v))}
                     style={{
                       fontSize: 10,
-                      fill: "#0f172a",
+                      fill: "#ffffff",
                       fontWeight: 700,
                     }}
                   />
@@ -790,9 +769,9 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[#020817]">Vendas por Dia da Semana</h2>
+              <h2 className="text-lg font-bold text-white">Vendas por Dia da Semana</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -800,33 +779,33 @@ export default function VendasPage() {
 
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={porDiaSemana} margin={{ top: 25, right: 16, left: 0, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
 
                 <XAxis
                   dataKey="dia"
-                  tick={{ fontSize: 11, fill: "#36577d", fontWeight: 600 }}
+                  tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
                   tickLine={false}
                   axisLine={false}
                 />
 
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#36577d" }}
+                  tick={{ fontSize: 11, fill: "#94a3b8" }}
                   tickFormatter={(value) => `${Number(value) / 1000}k`}
                   tickLine={false}
                   axisLine={false}
                 />
 
-                <Tooltip formatter={(v: any) => moeda(Number(v))} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
 
                 <Bar dataKey="total" fill="#1d4ed8" radius={[10, 10, 0, 0]} barSize={44}>
                   <LabelList
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={formatarValorGrafico}
+                    formatter={(v: any) => moeda(Number(v))}
                     style={{
                       fontSize: 10,
-                      fill: "#0f172a",
+                      fill: "#ffffff",
                       fontWeight: 700,
                     }}
                   />
@@ -835,18 +814,18 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[#020817]">Top 5 Maiores Vendas</h2>
+              <h2 className="text-lg font-bold text-white">Top 5 Maiores Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px]">
+              <table className="w-full min-w-[720px] text-slate-200">
                 <thead>
-                  <tr className="bg-[#f1f7ff] text-xs text-[#36577d]">
+                  <tr className="bg-white/[0.06]/[0.04] text-xs text-slate-400">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
                     <th className="py-3 px-3 text-left">Data</th>
                     <th className="py-3 px-3 text-left">Paciente</th>
@@ -857,8 +836,8 @@ export default function VendasPage() {
 
                 <tbody>
                   {topVendas.map((item, index) => (
-                    <tr key={item.id} className="border-b border-[#e2ecfb] hover:bg-[#f8fbff]">
-                      <td className="py-3 px-3 text-sm font-bold text-slate-500">
+                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.06]/[0.05]">
+                      <td className="py-3 px-3 text-sm font-bold text-slate-400">
                         {index + 1}
                       </td>
                       <td className="py-3 px-3 text-sm whitespace-nowrap">
@@ -884,9 +863,9 @@ export default function VendasPage() {
             </button>
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-[#020817]">Vendas por Mês</h2>
+              <h2 className="text-lg font-bold text-white">Vendas por Mês</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -898,33 +877,33 @@ export default function VendasPage() {
                   data={comparativoMensalDetalhado}
                   margin={{ top: 28, right: 12, left: 0, bottom: 8 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
 
                   <XAxis
                     dataKey="mes"
-                    tick={{ fontSize: 11, fill: "#36577d", fontWeight: 600 }}
+                    tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
                     tickLine={false}
                     axisLine={false}
                   />
 
                   <YAxis
-                    tick={{ fontSize: 11, fill: "#36577d" }}
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
                     tickFormatter={(value) => `${Number(value) / 1000}k`}
                     tickLine={false}
                     axisLine={false}
                   />
 
-                  <Tooltip formatter={(v: any) => moeda(Number(v))} />
+                  <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
 
                   <Bar dataKey="total" fill="#0f3b82" radius={[12, 12, 0, 0]} barSize={58}>
                     <LabelList
                       dataKey="total"
                       position="top"
                       offset={10}
-                      formatter={formatarValorGrafico}
+                      formatter={(v: any) => moeda(Number(v))}
                       style={{
                         fontSize: 10,
-                        fill: "#0f172a",
+                        fill: "#ffffff",
                         fontWeight: 700,
                       }}
                     />
@@ -935,8 +914,8 @@ export default function VendasPage() {
               <div
                 className={`rounded-2xl px-4 py-5 text-center border ${
                   variacao >= 0
-                    ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                    : "bg-red-50 border-red-100 text-red-600"
+                    ? "bg-emerald-500/10 border-emerald-400/20 text-emerald-300"
+                    : "bg-red-500/10 border-red-400/20 text-red-300"
                 }`}
               >
                 <p className="text-2xl font-bold">{variacaoTexto}</p>
@@ -947,11 +926,11 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:col-span-2 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:col-span-2 2xl:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
-                <h2 className="text-xl font-bold text-[#020817]">Todas as Vendas</h2>
-                <p className="text-sm text-slate-500 mt-1">
+                <h2 className="text-xl font-bold text-white">Todas as Vendas</h2>
+                <p className="text-sm text-slate-400 mt-1">
                   Exibindo {dadosPaginados.length} de {dadosFiltrados.length} registros.
                 </p>
               </div>
@@ -966,24 +945,24 @@ export default function VendasPage() {
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
                     placeholder="Buscar venda..."
-                    className="border border-[#dbeafe] rounded-xl pl-9 pr-4 py-2 text-sm outline-none"
+                    className="border border-white/10 bg-white/[0.06] rounded-xl pl-9 pr-4 py-2 text-sm text-white outline-none placeholder:text-slate-500"
                   />
                 </div>
 
-                <div className="border border-[#dbeafe] rounded-xl px-4 py-2 text-sm text-slate-700 flex items-center gap-2 bg-white">
+                <div className="border border-white/10 rounded-xl px-4 py-2 text-sm text-slate-300 flex items-center gap-2 bg-white/[0.06]">
                   <CalendarDays size={15} className="text-slate-400" />
                   {formatarData(dataInicio)} - {formatarData(dataFim)}
                 </div>
 
                 <button
                   onClick={exportarCSV}
-                  className="border border-purple-200 text-[#0f3b82] rounded-xl px-4 py-2 text-sm flex items-center gap-2 hover:bg-[#f3f8ea] transition"
+                  className="border border-[#95c11f]/30 text-[#0f3b82] rounded-xl px-4 py-2 text-sm flex items-center gap-2 hover:bg-white/[0.08] transition"
                 >
                   <Download size={16} />
                   Exportar
                 </button>
 
-                <button className="border border-[#dbeafe] rounded-xl w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-[#f8fbff] transition">
+                <button className="border border-white/10 rounded-xl w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-white/[0.06]/[0.05] transition">
                   <MoreVertical size={17} />
                 </button>
               </div>
@@ -993,10 +972,10 @@ export default function VendasPage() {
               <p>Carregando...</p>
             ) : (
               <>
-                <div className="overflow-auto rounded-2xl border border-[#dbeafe]">
-                  <table className="w-full min-w-[720px]">
+                <div className="overflow-auto rounded-2xl border border-white/10">
+                  <table className="w-full min-w-[720px] text-slate-200">
                     <thead>
-                      <tr className="bg-[#f1f7ff] text-sm text-[#36577d]">
+                      <tr className="bg-white/[0.06]/[0.04] text-sm text-slate-400">
                         <th className="text-left py-4 px-4">Data</th>
                         <th className="text-left py-4 px-4">Paciente</th>
                         <th className="text-center py-4 px-4">Qtd. Títulos</th>
@@ -1008,7 +987,7 @@ export default function VendasPage() {
                       {dadosPaginados.map((item) => (
                         <tr
                           key={item.id}
-                          className="border-t border-[#e2ecfb] hover:bg-[#f8fbff]"
+                          className="border-t border-white/10 hover:bg-white/[0.06]/[0.05]"
                         >
                           <td className="py-4 px-4">{formatarData(item.data)}</td>
 
@@ -1030,7 +1009,7 @@ export default function VendasPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-4 mt-5">
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-400">
                     Exibindo {(paginaAtual - 1) * itensPorPagina + 1} a{" "}
                     {Math.min(paginaAtual * itensPorPagina, dadosFiltrados.length)} de{" "}
                     {dadosFiltrados.length} resultados
@@ -1052,8 +1031,8 @@ export default function VendasPage() {
                             onClick={() => setPaginaAtual(pagina)}
                             className={`w-9 h-9 rounded-xl text-sm font-semibold border transition ${
                               paginaAtual === pagina
-                                ? "bg-[#0f3b82] text-white border-[#0f3b82] shadow-lg shadow-blue-200"
-                                : "bg-white text-slate-600 border-slate-200 hover:border-[#95c11f] hover:text-[#0f3b82]"
+                                ? "bg-[#0f3b82] text-white border-[#0f3b82] shadow-lg shadow-blue-950/40"
+                                : "bg-white/[0.06] text-slate-300 border-white/10 hover:border-[#95c11f] hover:text-[#0f3b82]"
                             }`}
                           >
                             {pagina}
@@ -1067,7 +1046,7 @@ export default function VendasPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <h2 className="font-semibold text-lg mb-4">Indicadores do Período</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1094,7 +1073,7 @@ export default function VendasPage() {
                   detalhe: maiorQtdTitulosItem ? `em ${formatarData(maiorQtdTitulosItem.data)}` : "-",
                   Icon: Activity,
                   bg: "bg-[#0f3b82]/10",
-                  cor: "text-[#1d4ed8]",
+                  cor: "text-[#3b82f6]",
                 },
                 {
                   titulo: "Conversão de vendas",
@@ -1102,7 +1081,7 @@ export default function VendasPage() {
                   detalhe: "realizadas",
                   Icon: ShoppingCart,
                   bg: "bg-[#1d4ed8]/10",
-                  cor: "text-[#0f3b82]",
+                  cor: "text-[#3b82f6]",
                 },
                 {
                   titulo: "Total de títulos",
@@ -1126,7 +1105,7 @@ export default function VendasPage() {
                 return (
                   <div
                     key={item.titulo}
-                    className="rounded-2xl border border-slate-200 p-4 bg-white hover:border-[#95c11f]/40 hover:shadow-md transition"
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 bg-white/[0.06] hover:border-[#95c11f]/40 hover:shadow-md transition"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-2xl ${item.bg} ${item.cor} flex items-center justify-center`}>
@@ -1134,11 +1113,11 @@ export default function VendasPage() {
                       </div>
 
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-500">{item.titulo}</p>
-                        <h3 className="font-bold mt-1 break-words leading-5 text-slate-950">
+                        <p className="text-xs text-slate-400">{item.titulo}</p>
+                        <h3 className="font-bold mt-1 break-words leading-5 text-white">
                           {item.valor}
                         </h3>
-                        <p className="text-sm text-slate-500 mt-1">{item.detalhe}</p>
+                        <p className="text-sm text-slate-400 mt-1">{item.detalhe}</p>
                       </div>
                     </div>
                   </div>
@@ -1148,7 +1127,7 @@ export default function VendasPage() {
 
             <button
               onClick={() => setModalAnalise(true)}
-              className="w-full mt-5 rounded-2xl border border-purple-300 text-[#0f3b82] font-semibold py-4 hover:bg-[#f3f8ea] transition flex items-center justify-center gap-2"
+              className="w-full mt-5 rounded-2xl border border-[#95c11f]/30 text-[#0f3b82] font-semibold py-4 hover:bg-white/[0.08] transition flex items-center justify-center gap-2"
             >
               <Eye size={18} />
               Ver análise completa
@@ -1157,58 +1136,58 @@ export default function VendasPage() {
         </div>
 
         {modalAnalise && (
-          <div className="fixed inset-0 z-50 bg-[#020817]/50 flex items-center justify-center p-4">
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#dbeafe] bg-white p-4 shadow-2xl 2xl:p-6">
+          <div className="fixed inset-0 z-50 bg-[#020817]/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/10 bg-[#0b1220] p-4 shadow-2xl 2xl:p-6">
               <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
+                  <h2 className="text-2xl font-bold text-white">
                     Análise completa de vendas
                   </h2>
-                  <p className="text-sm text-slate-500 mt-1">
+                  <p className="text-sm text-slate-400 mt-1">
                     {formatarData(dataInicio)} até {formatarData(dataFim)}
                   </p>
                 </div>
 
                 <button
                   onClick={() => setModalAnalise(false)}
-                  className="rounded-full border border-slate-200 p-2 hover:bg-[#f8fbff]"
+                  className="rounded-full border border-white/10 p-2 hover:bg-white/[0.06]/[0.05]"
                 >
                   <X size={18} />
                 </button>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-sm text-slate-500">Total vendido</p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-sm text-slate-400">Total vendido</p>
                   <h3 className="text-xl font-bold text-purple-600 mt-2">
                     {moeda(totalVendido)}
                   </h3>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-sm text-slate-500">Mês anterior</p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-sm text-slate-400">Mês anterior</p>
                   <h3 className="text-xl font-bold text-[#6b7f16] mt-2">
                     {moeda(totalMesAnterior)}
                   </h3>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-sm text-slate-500">Variação</p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-sm text-slate-400">Variação</p>
                   <h3 className="text-xl font-bold text-purple-600 mt-2">
                     {variacaoTexto}
                   </h3>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 p-4">
-                  <p className="text-sm text-slate-500">Pacientes</p>
-                  <h3 className="text-xl font-bold text-slate-900 mt-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-sm text-slate-400">Pacientes</p>
+                  <h3 className="text-xl font-bold text-white mt-2">
                     {pacientes}
                   </h3>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-600">
+              <div className="mt-5 rounded-2xl bg-white/[0.04] p-4">
+                <p className="text-sm text-slate-300">
                   Maior venda do período:{" "}
                   <strong>{maiorVendaItem?.paciente || "-"}</strong>, no valor de{" "}
                   <strong>{moeda(maiorVenda)}</strong>.
@@ -1217,10 +1196,12 @@ export default function VendasPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </AppShell>
   );
 }
+
 
 
 
