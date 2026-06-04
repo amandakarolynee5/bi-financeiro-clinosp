@@ -480,12 +480,12 @@ export default function ContasPagasPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/importar"
-              className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06]/[0.06] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)] 2xl:px-5 2xl:py-3"
+              className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)] 2xl:px-5 2xl:py-3"
             >
               Importar Planilhas
             </Link>
 
-            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-3 py-2.5 text-sm text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)] 2xl:gap-3 2xl:px-4 2xl:py-3">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)] 2xl:gap-3 2xl:px-4 2xl:py-3">
               <CalendarDays size={18} className="text-[#0f3b82]" />
 
               <input
@@ -644,7 +644,7 @@ export default function ContasPagasPage() {
                   rounded-3xl
                   border
                   border-white/10
-                  bg-white/[0.06]/[0.06]/90
+                  bg-white/[0.06]/90
                   p-4
                   pr-14
                   2xl:min-h-[152px]
@@ -703,10 +703,10 @@ export default function ContasPagasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Gastos por Plano de Contas</h2>
-              <button className="text-xs font-bold text-[#0f3b82] hover:text-[#95c11f]">
+              <button className="text-xs font-bold text-[#3b82f6] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
@@ -783,10 +783,10 @@ export default function ContasPagasPage() {
             </ResponsiveContainer></div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Evolução dos Gastos (por dia)</h2>
-              <button className="text-xs font-bold text-[#0f3b82] hover:text-[#95c11f]">
+              <button className="text-xs font-bold text-[#3b82f6] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
@@ -855,10 +855,10 @@ export default function ContasPagasPage() {
             </ResponsiveContainer></div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 min-h-[420px]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 min-h-[420px]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Participação das Despesas</h2>
-              <button className="text-xs font-bold text-[#0f3b82] hover:text-[#95c11f]">
+              <button className="text-xs font-bold text-[#3b82f6] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
@@ -951,10 +951,10 @@ export default function ContasPagasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Gastos por Semana</h2>
-              <button className="text-xs font-bold text-[#0f3b82] hover:text-[#95c11f]">
+              <button className="text-xs font-bold text-[#3b82f6] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
@@ -1022,10 +1022,10 @@ export default function ContasPagasPage() {
             </ResponsiveContainer></div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Ranking dos Maiores Pagamentos</h2>
-              <button className="text-xs font-bold text-[#0f3b82] hover:text-[#95c11f]">
+              <button className="text-xs font-bold text-[#3b82f6] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
@@ -1033,7 +1033,7 @@ export default function ContasPagasPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[680px] text-slate-200">
                 <thead>
-                  <tr className="bg-white/[0.06]/[0.04] text-xs text-slate-400">
+                  <tr className="bg-white/[0.04] text-xs text-slate-400">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
                     <th className="py-3 px-3 text-left">Data</th>
                     <th className="py-3 px-3 text-left">Plano de Contas</th>
@@ -1044,7 +1044,7 @@ export default function ContasPagasPage() {
 
                 <tbody>
                   {topPagamentos.map((item, index) => (
-                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.06]/[0.05]">
+                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.05]">
                       <td className="py-3 px-3 text-sm font-bold text-slate-400">
                         {index + 1}
                       </td>
@@ -1071,10 +1071,10 @@ export default function ContasPagasPage() {
             </button>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Comparativo Mensal (Total Pago)</h2>
-              <button className="text-xs font-bold text-[#0f3b82] hover:text-[#95c11f]">
+              <button className="text-xs font-bold text-[#3b82f6] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
@@ -1145,8 +1145,8 @@ export default function ContasPagasPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 min-w-0">
+        <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[2fr_1fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
                 <h2 className="text-lg font-bold text-white 2xl:text-xl">Todos os Pagamentos</h2>
@@ -1176,7 +1176,7 @@ export default function ContasPagasPage() {
 
                 <button
                   onClick={exportarCSV}
-                  className="border border-[#95c11f]/30 text-[#0f3b82] rounded-xl px-4 py-2 text-sm flex items-center gap-2 hover:bg-white/[0.08] transition"
+                  className="border border-[#95c11f]/30 text-[#95c11f] rounded-xl px-4 py-2 text-sm flex items-center gap-2 hover:bg-white/[0.08] transition"
                 >
                   <Download size={16} />
                   Exportar
@@ -1195,7 +1195,7 @@ export default function ContasPagasPage() {
                 <div className="overflow-auto rounded-2xl border border-white/10">
                   <table className="w-full min-w-[850px] text-slate-200">
                     <thead>
-                      <tr className="bg-white/[0.06]/[0.04] text-sm text-slate-400">
+                      <tr className="bg-white/[0.04] text-sm text-slate-400">
                         <th className="text-left py-4 px-4">Data</th>
                         <th className="text-left py-4 px-4">Plano de Contas</th>
                         <th className="text-left py-4 px-4">Descrição</th>
@@ -1207,7 +1207,7 @@ export default function ContasPagasPage() {
                       {dadosPaginados.map((item) => (
                         <tr
                           key={item.id}
-                          className="border-t border-white/10 hover:bg-white/[0.06]/[0.05]"
+                          className="border-t border-white/10 hover:bg-white/[0.05]"
                         >
                           <td className="py-4 px-4">{formatarData(item.data)}</td>
 
@@ -1264,80 +1264,77 @@ export default function ContasPagasPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 h-fit">
-            <h2 className="font-semibold text-lg mb-4">
-              Indicadores do Período
-            </h2>
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold text-white">
+                    Ranking dos Planos de Contas
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Do maior para o menor gasto no período.
+                  </p>
+                </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:gap-4">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 transition hover:border-[#95c11f]/40 hover:shadow-md 2xl:p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-purple-100 text-[#0f3b82] flex items-center justify-center">
-                    <Award size={20} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-400">Maior Centro de Custo</p>
-                    <h3 className="font-bold mt-1 break-words leading-5 text-white">
-                      {porPlano[0]?.nome || "-"}
-                    </h3>
-                    <p className="text-sm text-slate-300 mt-1">
-                      {moeda(porPlano[0]?.total || 0)} ({(porPlano[0]?.percentual || 0).toFixed(1).replace(".", ",")}%)
-                    </p>
-                  </div>
+                <div className="rounded-2xl border border-[#95c11f]/20 bg-[#95c11f]/10 px-3 py-2 text-xs font-bold text-[#95c11f]">
+                  {porPlano.length} planos
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 transition hover:border-[#95c11f]/40 hover:shadow-md 2xl:p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#1d4ed8]/10 text-[#1d4ed8] flex items-center justify-center">
-                    <CalendarClock size={20} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Dia de Maior Gasto</p>
-                    <h3 className="font-bold mt-1">
-                      {maiorPagamentoItem ? formatarData(maiorPagamentoItem.data) : "-"}
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-1">{moeda(maior)}</p>
-                  </div>
-                </div>
-              </div>
+              <div className="h-[2360px] overflow-auto rounded-2xl border border-white/10 2xl:h-[2575px]">
+                <table className="w-full min-w-[520px] text-sm text-slate-200">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="bg-[#0b1220] text-xs uppercase tracking-wide text-slate-400">
+                      <th className="px-3 py-4 text-left">#</th>
+                      <th className="px-3 py-4 text-left">Plano de Contas</th>
+                      <th className="px-3 py-4 text-right">Total</th>
+                      <th className="px-3 py-4 text-right">%</th>
+                    </tr>
+                  </thead>
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 transition hover:border-[#95c11f]/40 hover:shadow-md 2xl:p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#dbeafe] text-[#0f3b82] flex items-center justify-center">
-                    <Gauge size={20} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Média por Pagamento</p>
-                    <h3 className="font-bold mt-1">{moeda(media)}</h3>
-                    <p className="text-sm text-slate-400 mt-1">por transação</p>
-                  </div>
-                </div>
-              </div>
+                  <tbody>
+                    {porPlano.map((item, index) => {
+                      const destaque =
+                        index === 0
+                          ? "bg-[#1d4ed8]/15"
+                          : index === 2
+                          ? "bg-[#95c11f]/10"
+                          : "bg-transparent";
 
-              <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 transition hover:border-[#95c11f]/40 hover:shadow-md 2xl:p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-[#95c11f]/20 text-[#6b7f16] flex items-center justify-center">
-                    <PercentCircle size={20} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-400">Percentual do Top 3</p>
-                    <h3 className="font-bold mt-1">
-                      {percentualTop3.toFixed(1).replace(".", ",")}%
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-1">das despesas</p>
-                  </div>
-                </div>
+                      return (
+                        <tr
+                          key={item.nome}
+                          className={`border-t border-white/10 ${destaque} transition hover:bg-white/[0.08]`}
+                        >
+                          <td className="px-3 py-4 align-top">
+                            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] text-xs font-black text-slate-300">
+                              {index + 1}
+                            </span>
+                          </td>
+
+                          <td className="px-3 py-4 align-top">
+                            <p className="font-semibold text-white" title={item.nome}>
+                              {item.nome}
+                            </p>
+                          </td>
+
+                          <td className="whitespace-nowrap px-3 py-4 text-right align-top font-bold text-white">
+                            {moeda(item.total)}
+                          </td>
+
+                          <td className="whitespace-nowrap px-3 py-4 text-right align-top">
+                            <span className="rounded-full border border-[#95c11f]/20 bg-[#95c11f]/10 px-2.5 py-1 text-xs font-black text-[#95c11f]">
+                              {(item.percentual || 0).toFixed(1).replace(".", ",")}%
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <button
-              onClick={() => setModalAnalise(true)}
-              className="w-full mt-5 rounded-2xl border border-[#95c11f]/30 text-[#0f3b82] font-semibold py-4 hover:bg-white/[0.08] transition flex items-center justify-center gap-2"
-            >
-              <Eye size={18} />
-              Ver análise completa
-            </button>
           </div>
         </div>
 
@@ -1407,23 +1404,4 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
