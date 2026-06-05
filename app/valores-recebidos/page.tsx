@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../lib/theme";
 import {
   LineChart,
   Line,
@@ -127,6 +128,8 @@ function renderTickEspecie(props: any) {
 }
 
 export default function ValoresRecebidosPage() {
+  const { theme } = useTheme();
+  const claro = theme === "light";
   const periodoAtual = getPeriodoAtual();
   const [dados, setDados] = useState<ValorRecebido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -418,7 +421,91 @@ export default function ValoresRecebidosPage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+      <div
+        className={`recebidos-theme relative min-h-screen overflow-hidden rounded-[40px] border p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-colors duration-300 lg:p-8 ${
+          claro
+            ? "recebidos-light border-slate-200 bg-[#f4f7fb] text-slate-950"
+            : "recebidos-dark border-white/10 bg-[#020817] text-white"
+        }`}
+      >
+        <style>{`
+          .recebidos-light > .pointer-events-none {
+            display: none !important;
+          }
+
+          .recebidos-light [class*="bg-white"] {
+            background-color: #ffffff !important;
+          }
+
+          .recebidos-light [class*="border-white"] {
+            border-color: #e2e8f0 !important;
+          }
+
+          .recebidos-light [class*="text-white"] {
+            color: #0f172a !important;
+          }
+
+          .recebidos-light [class*="text-slate-400"] {
+            color: #64748b !important;
+          }
+
+          .recebidos-light [class*="text-slate-300"] {
+            color: #475569 !important;
+          }
+
+          .recebidos-light [class*="bg-[#0b1220]"] {
+            background-color: #f1f5f9 !important;
+          }
+
+          .recebidos-light input,
+          .recebidos-light select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #bfdbfe !important;
+            color-scheme: light !important;
+          }
+
+          .recebidos-light option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+          }
+
+          .recebidos-light table {
+            color: #0f172a !important;
+          }
+
+          .recebidos-light table thead tr {
+            background-color: #f1f5f9 !important;
+          }
+
+          .recebidos-light th {
+            color: #475569 !important;
+          }
+
+          .recebidos-light td {
+            color: #0f172a !important;
+          }
+
+          .recebidos-light table tbody tr {
+            border-color: #e2e8f0 !important;
+          }
+
+          .recebidos-light tbody tr:hover {
+            background-color: #eff6ff !important;
+          }
+
+          .recebidos-light tbody tr:hover td {
+            color: #0f172a !important;
+          }
+
+          .recebidos-light .recharts-cartesian-grid line {
+            stroke: #dbeafe !important;
+          }
+
+          .recebidos-light .recharts-text {
+            fill: #475569 !important;
+          }
+        `}</style>
         <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
@@ -433,11 +520,11 @@ export default function ValoresRecebidosPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Link href="/importar" className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06]/[0.06] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)] 2xl:px-5 2xl:py-3">
+            <Link href="/importar" className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)] 2xl:px-5 2xl:py-3">
               Importar Planilhas
             </Link>
 
-            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-3 py-2.5 text-sm text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)] 2xl:gap-3 2xl:px-4 2xl:py-3">
+            <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-3 py-2.5 text-sm text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)] 2xl:gap-3 2xl:px-4 2xl:py-3">
               <CalendarDays size={18} className="text-[#0f3b82]" />
               <input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="bg-transparent outline-none text-sm text-slate-200 [color-scheme:dark]" />
               <span className="text-slate-400">até</span>
@@ -511,7 +598,7 @@ export default function ValoresRecebidosPage() {
           ].map((item) => {
             const Icon = item.Icon;
             return (
-              <div key={item.titulo} className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:min-h-[152px] 2xl:p-5 2xl:pr-16">
+              <div key={item.titulo} className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:min-h-[152px] 2xl:p-5 2xl:pr-16">
                 <div>
                   <div className="min-w-0">
                     <p className="text-xs text-slate-400 font-medium">{item.titulo}</p>
@@ -528,7 +615,7 @@ export default function ValoresRecebidosPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:min-h-[420px] 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:min-h-[420px] 2xl:p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Recebimentos por Espécie</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver detalhes</button>
@@ -538,10 +625,18 @@ export default function ValoresRecebidosPage() {
               <div className="relative mx-auto flex h-[200px] min-h-[200px] w-[170px] min-w-[170px] items-center justify-center 2xl:h-[230px] 2xl:w-[190px]">
                 <ResponsiveContainer width="100%" height="100%" minWidth={170} minHeight={190}>
                   <PieChart>
-                    <Pie data={porEspecie.slice(0, 6)} dataKey="total" nameKey="nome" innerRadius={50} outerRadius={78} paddingAngle={1} stroke="#020817" strokeWidth={2}>
+                    <Pie data={porEspecie.slice(0, 6)} dataKey="total" nameKey="nome" innerRadius={50} outerRadius={78} paddingAngle={1} stroke={claro ? "#ffffff" : "#020817"} strokeWidth={2}>
                       {porEspecie.slice(0, 6).map((_, i) => <Cell key={i} fill={cores[i % cores.length]} />)}
                     </Pie>
-                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                   </PieChart>
                 </ResponsiveContainer>
 
@@ -566,7 +661,7 @@ export default function ValoresRecebidosPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Evolução dos Recebimentos</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver detalhes</button>
@@ -577,13 +672,21 @@ export default function ValoresRecebidosPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
                 <XAxis dataKey="data" tickFormatter={(v) => criarDataLocal(v).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} labelFormatter={(label) => formatarData(String(label))} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} labelFormatter={(label) => formatarData(String(label))} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                 <Line type="monotone" dataKey="total" stroke="#1d4ed8" strokeWidth={3} dot={{ r: 3, fill: "#0f3b82", strokeWidth: 2, stroke: "#ffffff" }} activeDot={{ r: 6, fill: "#0f3b82", stroke: "#ffffff", strokeWidth: 3 }} />
               </LineChart>
             </ResponsiveContainer></div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Comparativo por Espécie</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver detalhes</button>
@@ -602,9 +705,17 @@ export default function ValoresRecebidosPage() {
                   axisLine={false}
                 />
                 <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                 <Bar dataKey="total" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={42}>
-                  <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: "#ffffff", fontWeight: 700 }} />
+                  <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer></div>
@@ -612,7 +723,7 @@ export default function ValoresRecebidosPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Recebimentos por Semana</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver detalhes</button>
@@ -622,23 +733,31 @@ export default function ValoresRecebidosPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
                 <XAxis dataKey="semana" tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} labelFormatter={(_, payload) => payload?.[0]?.payload?.periodo || ""} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} labelFormatter={(_, payload) => payload?.[0]?.payload?.periodo || ""} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                 <Bar dataKey="total" fill="#95c11f" radius={[10, 10, 0, 0]} barSize={44}>
-                  <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: "#ffffff", fontWeight: 700 }} />
+                  <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer></div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Top 5 Maiores Recebimentos</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver detalhes</button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-slate-200">
+              <table className={claro ? "w-full min-w-[720px] text-slate-900" : "w-full min-w-[720px] text-slate-200"}>
                 <thead>
-                  <tr className="bg-white/[0.06]/[0.04] text-xs text-slate-400">
+                  <tr className="bg-white/[0.04] text-xs text-slate-400">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
                     <th className="py-3 px-3 text-left">Data</th>
                     <th className="py-3 px-3 text-left">Paciente</th>
@@ -648,7 +767,7 @@ export default function ValoresRecebidosPage() {
                 </thead>
                 <tbody>
                   {topRecebimentos.map((item, index) => (
-                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.06]/[0.05]">
+                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.05]">
                       <td className="py-3 px-3 text-sm font-bold text-slate-400">{index + 1}</td>
                       <td className="py-3 px-3 text-sm whitespace-nowrap">{formatarData(item.data)}</td>
                       <td className="py-3 px-3 text-sm font-semibold">{cortarTexto(item.paciente, 22)}</td>
@@ -662,7 +781,7 @@ export default function ValoresRecebidosPage() {
             <button className="w-full mt-3 text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver todos</button>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-white 2xl:text-lg">Recebimentos por Mês</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">Ver detalhes</button>
@@ -673,9 +792,17 @@ export default function ValoresRecebidosPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
                   <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                  <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                   <Bar dataKey="total" fill="#95c11f" radius={[12, 12, 0, 0]} barSize={58}>
-                    <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: "#ffffff", fontWeight: 700 }} />
+                    <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer></div>
@@ -688,7 +815,7 @@ export default function ValoresRecebidosPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:col-span-2 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:col-span-2 2xl:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
                 <h2 className="text-lg font-bold text-white 2xl:text-xl">Todos os Recebimentos</h2>
@@ -707,7 +834,7 @@ export default function ValoresRecebidosPage() {
                   <Download size={16} />
                   Exportar
                 </button>
-                <button className="border border-white/10 rounded-xl w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-white/[0.06]/[0.05] transition">
+                <button className="border border-white/10 rounded-xl w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-white/[0.05] transition">
                   <MoreVertical size={17} />
                 </button>
               </div>
@@ -718,9 +845,9 @@ export default function ValoresRecebidosPage() {
             ) : (
               <>
                 <div className="overflow-auto rounded-2xl border border-white/10">
-                  <table className="w-full min-w-[720px] text-slate-200">
+                  <table className={claro ? "w-full min-w-[720px] text-slate-900" : "w-full min-w-[720px] text-slate-200"}>
                     <thead>
-                      <tr className="bg-white/[0.06]/[0.04] text-sm text-slate-400">
+                      <tr className="bg-white/[0.04] text-sm text-slate-400">
                         <th className="text-left py-4 px-4">Data</th>
                         <th className="text-left py-4 px-4">Paciente</th>
                         <th className="text-left py-4 px-4">Espécie</th>
@@ -731,7 +858,7 @@ export default function ValoresRecebidosPage() {
                     </thead>
                     <tbody>
                       {dadosPaginados.map((item) => (
-                        <tr key={item.id} className="border-t border-white/10 hover:bg-white/[0.06]/[0.05]">
+                        <tr key={item.id} className="border-t border-white/10 hover:bg-white/[0.05]">
                           <td className="py-4 px-4">{formatarData(item.data)}</td>
                           <td className="py-4 px-4 font-medium">{item.paciente || "-"}</td>
                           <td className="py-4 px-4 text-slate-400">{nomeEspecie(item.especie)}</td>
@@ -764,7 +891,7 @@ export default function ValoresRecebidosPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <h2 className="font-semibold text-lg mb-4">Indicadores do Período</h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 2xl:gap-4">
               {[
@@ -807,7 +934,7 @@ export default function ValoresRecebidosPage() {
                   <h2 className="text-2xl font-bold text-white">Análise completa dos recebimentos</h2>
                   <p className="text-sm text-slate-400 mt-1">{formatarData(dataInicio)} até {formatarData(dataFim)}</p>
                 </div>
-                <button onClick={() => setModalAnalise(false)} className="rounded-full border border-white/10 p-2 hover:bg-white/[0.06]/[0.05]">
+                <button onClick={() => setModalAnalise(false)} className="rounded-full border border-white/10 p-2 hover:bg-white/[0.05]">
                   <X size={18} />
                 </button>
               </div>
@@ -829,6 +956,7 @@ export default function ValoresRecebidosPage() {
     </AppShell>
   );
 }
+
 
 
 

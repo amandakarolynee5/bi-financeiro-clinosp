@@ -5,6 +5,7 @@ import { Upload, FileSpreadsheet, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { lerPlanilha } from "../lib/excel";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../lib/theme";
 
 type ArquivoInfo = {
   nome: string;
@@ -13,6 +14,9 @@ type ArquivoInfo = {
 };
 
 export default function ImportarPage() {
+  const { theme } = useTheme();
+  const claro = theme === "light";
+
   const [contasPagas, setContasPagas] = useState<ArquivoInfo | null>(null);
   const [recebimentos, setRecebimentos] = useState<ArquivoInfo | null>(null);
   const [vendas, setVendas] = useState<ArquivoInfo | null>(null);
@@ -259,7 +263,48 @@ export default function ImportarPage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+      <div
+        className={`importar-theme relative min-h-screen overflow-hidden rounded-[40px] border p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-colors duration-300 lg:p-8 ${
+          claro
+            ? "importar-light border-slate-200 bg-[#f4f7fb] text-slate-950"
+            : "importar-dark border-white/10 bg-[#020817] text-white"
+        }`}
+      >
+        <style>{`
+          .importar-light > .pointer-events-none {
+            display: none !important;
+          }
+
+          .importar-light [class*="bg-white"] {
+            background-color: #ffffff !important;
+          }
+
+          .importar-light [class*="border-white"] {
+            border-color: #e2e8f0 !important;
+          }
+
+          .importar-light [class*="text-white"] {
+            color: #0f172a !important;
+          }
+
+          .importar-light [class*="text-slate-400"] {
+            color: #64748b !important;
+          }
+
+          .importar-light [class*="text-slate-300"] {
+            color: #475569 !important;
+          }
+
+          .importar-light label {
+            background-color: #ffffff !important;
+            border-color: #cbd5e1 !important;
+          }
+
+          .importar-light label:hover {
+            background-color: #eff6ff !important;
+            border-color: #95c11f !important;
+          }
+        `}</style>
         <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
@@ -299,7 +344,7 @@ export default function ImportarPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
+        <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm lg:flex-row lg:items-center lg:justify-between 2xl:p-6">
           <div>
             <h2 className="text-xl font-bold text-white">Pronto para importar</h2>
 
@@ -325,6 +370,7 @@ export default function ImportarPage() {
     </AppShell>
   );
 }
+
 
 
 

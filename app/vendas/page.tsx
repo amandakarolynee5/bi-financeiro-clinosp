@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../lib/theme";
 import {
   LineChart,
   Line,
@@ -94,6 +95,8 @@ function qtdTitulos(item: Venda) {
 }
 
 export default function VendasPage() {
+  const { theme } = useTheme();
+  const claro = theme === "light";
   const periodoAtual = getPeriodoAtual();
 
   const [dados, setDados] = useState<Venda[]>([]);
@@ -406,7 +409,91 @@ export default function VendasPage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+      <div
+        className={`vendas-theme relative min-h-screen overflow-hidden rounded-[40px] border p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-colors duration-300 lg:p-8 ${
+          claro
+            ? "vendas-light border-slate-200 bg-[#f4f7fb] text-slate-950"
+            : "vendas-dark border-white/10 bg-[#020817] text-white"
+        }`}
+      >
+        <style>{`
+          .vendas-light > .pointer-events-none {
+            display: none !important;
+          }
+
+          .vendas-light [class*="bg-white"] {
+            background-color: #ffffff !important;
+          }
+
+          .vendas-light [class*="border-white"] {
+            border-color: #e2e8f0 !important;
+          }
+
+          .vendas-light [class*="text-white"] {
+            color: #0f172a !important;
+          }
+
+          .vendas-light [class*="text-slate-400"] {
+            color: #64748b !important;
+          }
+
+          .vendas-light [class*="text-slate-300"] {
+            color: #475569 !important;
+          }
+
+          .vendas-light [class*="bg-[#0b1220]"] {
+            background-color: #f1f5f9 !important;
+          }
+
+          .vendas-light input,
+          .vendas-light select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #bfdbfe !important;
+            color-scheme: light !important;
+          }
+
+          .vendas-light option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+          }
+
+          .vendas-light table {
+            color: #0f172a !important;
+          }
+
+          .vendas-light table thead tr {
+            background-color: #f1f5f9 !important;
+          }
+
+          .vendas-light th {
+            color: #475569 !important;
+          }
+
+          .vendas-light td {
+            color: #0f172a !important;
+          }
+
+          .vendas-light table tbody tr {
+            border-color: #e2e8f0 !important;
+          }
+
+          .vendas-light tbody tr:hover {
+            background-color: #eff6ff !important;
+          }
+
+          .vendas-light tbody tr:hover td {
+            color: #0f172a !important;
+          }
+
+          .vendas-light .recharts-cartesian-grid line {
+            stroke: #dbeafe !important;
+          }
+
+          .vendas-light .recharts-text {
+            fill: #475569 !important;
+          }
+        `}</style>
         <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
@@ -425,12 +512,12 @@ export default function VendasPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/importar"
-              className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06]/[0.06] px-5 py-3 font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]"
+              className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06] px-5 py-3 font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]"
             >
               Importar Planilhas
             </Link>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-4 py-3 text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
+            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
               <CalendarDays size={18} className="text-[#0f3b82]" />
 
               <input
@@ -472,7 +559,7 @@ export default function VendasPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
             defaultValue={String(criarDataLocal(dataInicio).getMonth())}
           >
             <option className="bg-[#0f1f3a] text-white" value="0">Janeiro</option>
@@ -500,7 +587,7 @@ export default function VendasPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-white/10 bg-white/[0.06]/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
             defaultValue={String(criarDataLocal(dataInicio).getFullYear())}
           >
             <option className="bg-[#0f1f3a] text-white" value="2025">2025</option>
@@ -571,7 +658,7 @@ export default function VendasPage() {
             return (
               <div
                 key={item.titulo}
-                className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:min-h-[152px] 2xl:p-5 2xl:pr-16"
+                className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:min-h-[152px] 2xl:p-5 2xl:pr-16"
               >
                 <div>
                   <div className="min-w-0">
@@ -600,7 +687,7 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="xl:col-span-1 rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+          <div className="xl:col-span-1 rounded-3xl border border-white/10 bg-white/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">Evolução das Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -635,7 +722,15 @@ export default function VendasPage() {
                 <Tooltip
                   formatter={(v: any) => [moeda(Number(v)), "Total"]}
                   labelFormatter={(label) => formatarData(String(label))}
-                  contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }}
+                  contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }}
                 />
 
                 <Line
@@ -650,7 +745,7 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl min-h-[420px]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl min-h-[420px]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-bold text-white">Vendas por Faixa de Valor</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -669,7 +764,7 @@ export default function VendasPage() {
                       innerRadius={58}
                       outerRadius={88}
                       paddingAngle={1}
-                      stroke="#020817"
+                      stroke={claro ? "#ffffff" : "#020817"}
                       strokeWidth={2}
                     >
                       {porFaixa.map((_, i) => (
@@ -677,7 +772,15 @@ export default function VendasPage() {
                       ))}
                     </Pie>
 
-                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                   </PieChart>
                 </ResponsiveContainer>
 
@@ -718,7 +821,7 @@ export default function VendasPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">
                 Vendas por Faixa de Valor
@@ -748,7 +851,15 @@ export default function VendasPage() {
                   axisLine={false}
                 />
 
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
 
                 <Bar dataKey="total" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={48}>
                   <LabelList
@@ -758,7 +869,7 @@ export default function VendasPage() {
                     formatter={(v: any) => moeda(Number(v))}
                     style={{
                       fontSize: 10,
-                      fill: "#ffffff",
+                      fill: claro ? "#0f172a" : "#ffffff",
                       fontWeight: 700,
                     }}
                   />
@@ -769,7 +880,7 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">Vendas por Dia da Semana</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -795,7 +906,15 @@ export default function VendasPage() {
                   axisLine={false}
                 />
 
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
 
                 <Bar dataKey="total" fill="#1d4ed8" radius={[10, 10, 0, 0]} barSize={44}>
                   <LabelList
@@ -805,7 +924,7 @@ export default function VendasPage() {
                     formatter={(v: any) => moeda(Number(v))}
                     style={{
                       fontSize: 10,
-                      fill: "#ffffff",
+                      fill: claro ? "#0f172a" : "#ffffff",
                       fontWeight: 700,
                     }}
                   />
@@ -814,7 +933,7 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">Top 5 Maiores Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -823,9 +942,9 @@ export default function VendasPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-slate-200">
+              <table className={claro ? "w-full min-w-[720px] text-slate-900" : "w-full min-w-[720px] text-slate-200"}>
                 <thead>
-                  <tr className="bg-white/[0.06]/[0.04] text-xs text-slate-400">
+                  <tr className="bg-white/[0.04] text-xs text-slate-400">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
                     <th className="py-3 px-3 text-left">Data</th>
                     <th className="py-3 px-3 text-left">Paciente</th>
@@ -836,7 +955,7 @@ export default function VendasPage() {
 
                 <tbody>
                   {topVendas.map((item, index) => (
-                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.06]/[0.05]">
+                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.05]">
                       <td className="py-3 px-3 text-sm font-bold text-slate-400">
                         {index + 1}
                       </td>
@@ -863,7 +982,7 @@ export default function VendasPage() {
             </button>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">Vendas por Mês</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -893,7 +1012,15 @@ export default function VendasPage() {
                     axisLine={false}
                   />
 
-                  <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{ borderRadius: 16, border: "1px solid rgba(149,193,31,0.25)", background: "#0b1220", color: "#ffffff", boxShadow: "0 18px 50px rgba(0,0,0,0.45)" }} labelStyle={{ color: "#95c11f", fontWeight: 800, marginBottom: 6 }} itemStyle={{ color: "#ffffff", fontWeight: 700 }} />
+                  <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
+                    borderRadius: 16,
+                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                  }}
+                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
+                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
 
                   <Bar dataKey="total" fill="#0f3b82" radius={[12, 12, 0, 0]} barSize={58}>
                     <LabelList
@@ -926,7 +1053,7 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:col-span-2 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:col-span-2 2xl:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
                 <h2 className="text-xl font-bold text-white">Todas as Vendas</h2>
@@ -962,7 +1089,7 @@ export default function VendasPage() {
                   Exportar
                 </button>
 
-                <button className="border border-white/10 rounded-xl w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-white/[0.06]/[0.05] transition">
+                <button className="border border-white/10 rounded-xl w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-white/[0.05] transition">
                   <MoreVertical size={17} />
                 </button>
               </div>
@@ -973,9 +1100,9 @@ export default function VendasPage() {
             ) : (
               <>
                 <div className="overflow-auto rounded-2xl border border-white/10">
-                  <table className="w-full min-w-[720px] text-slate-200">
+                  <table className={claro ? "w-full min-w-[720px] text-slate-900" : "w-full min-w-[720px] text-slate-200"}>
                     <thead>
-                      <tr className="bg-white/[0.06]/[0.04] text-sm text-slate-400">
+                      <tr className="bg-white/[0.04] text-sm text-slate-400">
                         <th className="text-left py-4 px-4">Data</th>
                         <th className="text-left py-4 px-4">Paciente</th>
                         <th className="text-center py-4 px-4">Qtd. Títulos</th>
@@ -987,7 +1114,7 @@ export default function VendasPage() {
                       {dadosPaginados.map((item) => (
                         <tr
                           key={item.id}
-                          className="border-t border-white/10 hover:bg-white/[0.06]/[0.05]"
+                          className="border-t border-white/10 hover:bg-white/[0.05]"
                         >
                           <td className="py-4 px-4">{formatarData(item.data)}</td>
 
@@ -1046,7 +1173,7 @@ export default function VendasPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <h2 className="font-semibold text-lg mb-4">Indicadores do Período</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1114,7 +1241,7 @@ export default function VendasPage() {
 
                       <div className="min-w-0">
                         <p className="text-xs text-slate-400">{item.titulo}</p>
-                        <h3 className="font-bold mt-1 break-words leading-5 text-white">
+                        <h3 className={`font-bold mt-1 break-words leading-5 ${claro ? "text-slate-900" : "text-white"}`}>
                           {item.valor}
                         </h3>
                         <p className="text-sm text-slate-400 mt-1">{item.detalhe}</p>
@@ -1150,7 +1277,7 @@ export default function VendasPage() {
 
                 <button
                   onClick={() => setModalAnalise(false)}
-                  className="rounded-full border border-white/10 p-2 hover:bg-white/[0.06]/[0.05]"
+                  className="rounded-full border border-white/10 p-2 hover:bg-white/[0.05]"
                 >
                   <X size={18} />
                 </button>
@@ -1201,6 +1328,7 @@ export default function VendasPage() {
     </AppShell>
   );
 }
+
 
 
 

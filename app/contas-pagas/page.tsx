@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../lib/theme";
 import {
   LineChart,
   Line,
@@ -92,6 +93,8 @@ function getPeriodoAtual() {
 }
 
 export default function ContasPagasPage() {
+  const { theme } = useTheme();
+  const claro = theme === "light";
   const periodoAtual = getPeriodoAtual();
 
   const [dados, setDados] = useState<ContaPaga[]>([]);
@@ -457,7 +460,113 @@ export default function ContasPagasPage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+      <div
+        className={`contas-theme relative min-h-screen overflow-hidden rounded-[40px] border p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-colors duration-300 lg:p-8 ${
+          claro
+            ? "contas-light border-slate-200 bg-[#f4f7fb] text-slate-950"
+            : "contas-dark border-white/10 bg-[#020817] text-white"
+        }`}
+      >
+        <style>{`
+          .contas-light > .pointer-events-none {
+            display: none !important;
+          }
+
+          .contas-light [class*="bg-white"] {
+            background-color: #ffffff !important;
+          }
+
+          .contas-light [class*="border-white"] {
+            border-color: #e2e8f0 !important;
+          }
+
+          .contas-light [class*="text-white"] {
+            color: #0f172a !important;
+          }
+
+          .contas-light [class*="text-slate-400"] {
+            color: #64748b !important;
+          }
+
+          .contas-light [class*="text-slate-300"] {
+            color: #475569 !important;
+          }
+
+          .contas-light [class*="bg-[#0b1220]"] {
+            background-color: #f1f5f9 !important;
+          }
+
+          .contas-light input,
+          .contas-light select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #bfdbfe !important;
+            color-scheme: light !important;
+          }
+
+          .contas-light option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+          }
+
+          .contas-light table {
+            color: #0f172a !important;
+          }
+
+          .contas-light table thead tr {
+            background-color: #f1f5f9 !important;
+          }
+
+          .contas-light th {
+            color: #475569 !important;
+          }
+
+          .contas-light td {
+            color: #0f172a !important;
+          }
+
+          .contas-light table tbody tr {
+            border-color: #e2e8f0 !important;
+          }
+
+          .contas-light tbody tr:hover {
+            background-color: #eff6ff !important;
+          }
+
+          .contas-light tbody tr:hover td {
+            color: #0f172a !important;
+          }
+
+          .contas-light .ranking-table td,
+          .contas-light .ranking-table p {
+            color: #0f172a !important;
+          }
+
+          .contas-light .ranking-table th {
+            color: #64748b !important;
+          }
+
+          .contas-light .ranking-table span {
+            color: inherit;
+          }
+
+          .contas-light .ranking-table .ranking-badge {
+            color: #95c11f !important;
+          }
+
+          .contas-light .ranking-table .ranking-position {
+            background-color: #eaf2ff !important;
+            color: #0f3b82 !important;
+          }
+
+          .contas-light .recharts-cartesian-grid line {
+            stroke: #dbeafe !important;
+          }
+
+          .contas-light .recharts-text {
+            fill: #475569 !important;
+          }
+        `}</style>
         <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
@@ -746,18 +855,22 @@ export default function ContasPagasPage() {
                   }
                   contentStyle={{
                     borderRadius: 16,
-                    border: "1px solid rgba(149,193,31,0.25)",
-                    background: "#0b1220",
-                    color: "#ffffff",
-                    boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
+                    border: claro
+                      ? "1px solid #dbeafe"
+                      : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro
+                      ? "0 18px 45px rgba(15,59,130,0.12)"
+                      : "0 18px 50px rgba(0,0,0,0.45)",
                   }}
                   labelStyle={{
-                    color: "#95c11f",
+                    color: claro ? "#0f3b82" : "#95c11f",
                     fontWeight: 800,
                     marginBottom: 6,
                   }}
                   itemStyle={{
-                    color: "#ffffff",
+                    color: claro ? "#0f172a" : "#ffffff",
                     fontWeight: 700,
                   }}
                 />
@@ -827,18 +940,22 @@ export default function ContasPagasPage() {
                   labelFormatter={(label) => formatarData(String(label))}
                   contentStyle={{
                     borderRadius: 16,
-                    border: "1px solid rgba(149,193,31,0.25)",
-                    background: "#0b1220",
-                    color: "#ffffff",
-                    boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
+                    border: claro
+                      ? "1px solid #dbeafe"
+                      : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro
+                      ? "0 18px 45px rgba(15,59,130,0.12)"
+                      : "0 18px 50px rgba(0,0,0,0.45)",
                   }}
                   labelStyle={{
-                    color: "#95c11f",
+                    color: claro ? "#0f3b82" : "#95c11f",
                     fontWeight: 800,
                     marginBottom: 6,
                   }}
                   itemStyle={{
-                    color: "#ffffff",
+                    color: claro ? "#0f172a" : "#ffffff",
                     fontWeight: 700,
                   }}
                 />
@@ -886,7 +1003,29 @@ export default function ContasPagasPage() {
                       )}
                     </Pie>
 
-                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} />
+                    <Tooltip
+                      formatter={(v: any) => [moeda(Number(v)), "Total"]}
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: claro
+                          ? "1px solid #dbeafe"
+                          : "1px solid rgba(149,193,31,0.25)",
+                        background: claro ? "#ffffff" : "#0b1220",
+                        color: claro ? "#0f172a" : "#ffffff",
+                        boxShadow: claro
+                          ? "0 18px 45px rgba(15,59,130,0.12)"
+                          : "0 18px 50px rgba(0,0,0,0.45)",
+                      }}
+                      labelStyle={{
+                        color: claro ? "#0f3b82" : "#95c11f",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                      itemStyle={{
+                        color: claro ? "#0f172a" : "#ffffff",
+                        fontWeight: 700,
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
 
@@ -984,18 +1123,22 @@ export default function ContasPagasPage() {
                   }
                   contentStyle={{
                     borderRadius: 16,
-                    border: "1px solid rgba(149,193,31,0.25)",
-                    background: "#0b1220",
-                    color: "#ffffff",
-                    boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
+                    border: claro
+                      ? "1px solid #dbeafe"
+                      : "1px solid rgba(149,193,31,0.25)",
+                    background: claro ? "#ffffff" : "#0b1220",
+                    color: claro ? "#0f172a" : "#ffffff",
+                    boxShadow: claro
+                      ? "0 18px 45px rgba(15,59,130,0.12)"
+                      : "0 18px 50px rgba(0,0,0,0.45)",
                   }}
                   labelStyle={{
-                    color: "#95c11f",
+                    color: claro ? "#0f3b82" : "#95c11f",
                     fontWeight: 800,
                     marginBottom: 6,
                   }}
                   itemStyle={{
-                    color: "#ffffff",
+                    color: claro ? "#0f172a" : "#ffffff",
                     fontWeight: 700,
                   }}
                 />
@@ -1031,7 +1174,7 @@ export default function ContasPagasPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[680px] text-slate-200">
+              <table className={claro ? "w-full min-w-[680px] text-slate-900" : "w-full min-w-[680px] text-slate-200"}>
                 <thead>
                   <tr className="bg-white/[0.04] text-xs text-slate-400">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
@@ -1105,8 +1248,10 @@ export default function ContasPagasPage() {
                     formatter={(v: any) => moeda(Number(v))}
                     contentStyle={{
                       borderRadius: 16,
-                      border: "1px solid #e2e8f0",
-                      boxShadow: "0 12px 30px rgba(15, 23, 42, 0.12)",
+                      border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
+                      background: claro ? "#ffffff" : "#0b1220",
+                      color: claro ? "#0f172a" : "#ffffff",
+                      boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
                     }}
                   />
 
@@ -1145,7 +1290,7 @@ export default function ContasPagasPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[2fr_1fr]">
+        <div className="grid grid-cols-1 items-start gap-6 2xl:grid-cols-[2fr_1fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
@@ -1193,7 +1338,7 @@ export default function ContasPagasPage() {
             ) : (
               <>
                 <div className="overflow-auto rounded-2xl border border-white/10">
-                  <table className="w-full min-w-[850px] text-slate-200">
+                  <table className={claro ? "w-full min-w-[850px] text-slate-900" : "w-full min-w-[850px] text-slate-200"}>
                     <thead>
                       <tr className="bg-white/[0.04] text-sm text-slate-400">
                         <th className="text-left py-4 px-4">Data</th>
@@ -1281,8 +1426,8 @@ export default function ContasPagasPage() {
                 </div>
               </div>
 
-              <div className="h-[2360px] overflow-auto rounded-2xl border border-white/10 2xl:h-[2575px]">
-                <table className="w-full min-w-[520px] text-sm text-slate-200">
+              <div className="ranking-table h-[2360px] overflow-auto rounded-2xl border border-white/10 2xl:h-[2575px]">
+                <table className={claro ? "w-full min-w-[520px] text-sm text-slate-900" : "w-full min-w-[520px] text-sm text-slate-200"}>
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-[#0b1220] text-xs uppercase tracking-wide text-slate-400">
                       <th className="px-3 py-4 text-left">#</th>
@@ -1307,7 +1452,7 @@ export default function ContasPagasPage() {
                           className={`border-t border-white/10 ${destaque} transition hover:bg-white/[0.08]`}
                         >
                           <td className="px-3 py-4 align-top">
-                            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] text-xs font-black text-slate-300">
+                            <span className="ranking-position flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] text-xs font-black text-slate-300">
                               {index + 1}
                             </span>
                           </td>
@@ -1323,7 +1468,7 @@ export default function ContasPagasPage() {
                           </td>
 
                           <td className="whitespace-nowrap px-3 py-4 text-right align-top">
-                            <span className="rounded-full border border-[#95c11f]/20 bg-[#95c11f]/10 px-2.5 py-1 text-xs font-black text-[#95c11f]">
+                            <span className="ranking-badge rounded-full border border-[#95c11f]/20 bg-[#95c11f]/10 px-2.5 py-1 text-xs font-black text-[#95c11f]">
                               {(item.percentual || 0).toFixed(1).replace(".", ",")}%
                             </span>
                           </td>
@@ -1404,4 +1549,7 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
+
+
+
 

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../lib/theme";
 import {
   LineChart,
   Line,
@@ -125,15 +126,30 @@ function agruparPorDia(lista: { data: string; valor: number }[]) {
 }
 
 function MiniMetricCard({ label, value }: { label: string; value: string | number }) {
+  const { theme } = useTheme();
+  const claro = theme === "light";
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.06]/90 p-2.5 shadow-[0_10px_28px_rgba(15,59,130,0.07)] backdrop-blur-xl 2xl:p-3">
-      <p className="text-[10px] font-medium text-slate-400 2xl:text-[11px]">{label}</p>
-      <h3 className="mt-1 text-xs font-bold text-white 2xl:text-sm">{value}</h3>
+    <div
+      className={`rounded-2xl border p-2.5 shadow-[0_10px_28px_rgba(15,59,130,0.07)] backdrop-blur-xl 2xl:p-3 ${
+        claro
+          ? "border-slate-200 bg-white text-slate-900"
+          : "border-white/10 bg-white/[0.06]/90 text-white"
+      }`}
+    >
+      <p className={`text-[10px] font-medium 2xl:text-[11px] ${claro ? "text-slate-500" : "text-slate-400"}`}>
+        {label}
+      </p>
+      <h3 className={`mt-1 text-xs font-bold 2xl:text-sm ${claro ? "text-slate-950" : "text-white"}`}>
+        {value}
+      </h3>
     </div>
   );
 }
 
 export default function DashboardPage() {
+  const { theme } = useTheme();
+  const claro = theme === "light";
   const periodoAtual = getPeriodoAtual();
   const [contas, setContas] = useState<ContaPaga[]>([]);
   const [recebimentos, setRecebimentos] = useState<Recebimento[]>([]);
@@ -337,7 +353,75 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="relative min-h-screen overflow-hidden rounded-[40px] border border-white/10 bg-[#020817] p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] lg:p-8">
+      <div
+        className={`dashboard-theme relative min-h-screen overflow-hidden rounded-[40px] border p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-colors duration-300 lg:p-8 ${
+          claro
+            ? "dashboard-light border-slate-200 bg-[#f4f7fb] text-slate-950"
+            : "dashboard-dark border-white/10 bg-[#020817] text-white"
+        }`}
+      >
+        <style jsx global>{`
+          .dashboard-light > .pointer-events-none {
+            display: none !important;
+          }
+
+          .dashboard-light [class*="bg-white"] {
+            background-color: #ffffff !important;
+          }
+
+          .dashboard-light [class*="border-white"] {
+            border-color: #e2e8f0 !important;
+          }
+
+          .dashboard-light [class*="text-white"] {
+            color: #0f172a !important;
+          }
+
+          .dashboard-light [class*="text-slate-400"] {
+            color: #64748b !important;
+          }
+
+          .dashboard-light [class*="text-slate-300"] {
+            color: #475569 !important;
+          }
+
+          .dashboard-light input,
+          .dashboard-light select {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #bfdbfe !important;
+            color-scheme: light !important;
+          }
+
+          .dashboard-light option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+          }
+
+          .dashboard-light table thead tr {
+            background-color: #f1f5f9 !important;
+          }
+
+          .dashboard-light table tbody tr {
+            border-color: #e2e8f0 !important;
+          }
+
+          .dashboard-light [class*="shadow-[0_24px_80px"] {
+            box-shadow: 0 22px 60px rgba(15, 59, 130, 0.10) !important;
+          }
+
+          .dashboard-light [class*="shadow-[0_18px_55px"] {
+            box-shadow: 0 18px 45px rgba(15, 59, 130, 0.10) !important;
+          }
+
+          .dashboard-light .recharts-cartesian-grid line {
+            stroke: #dbeafe !important;
+          }
+
+          .dashboard-light .recharts-text {
+            fill: #475569 !important;
+          }
+        `}</style>
         <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
@@ -710,6 +794,7 @@ function TabelaVendas({ ultimas, moeda, formatarData }: { ultimas: Venda[]; moed
     </div>
   );
 }
+
 
 
 
