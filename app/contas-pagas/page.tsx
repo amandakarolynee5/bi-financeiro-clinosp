@@ -68,6 +68,24 @@ const cores = [
 
 const itensPorPagina = 40;
 
+const mesesComparativo = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+const nomesMesesCompletos = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
+];
+
+
 function criarDataLocal(data: string) {
   const [ano, mes, dia] = data.split("-").map(Number);
   return new Date(ano, mes - 1, dia);
@@ -102,6 +120,13 @@ export default function ContasPagasPage() {
   const [dataInicio, setDataInicio] = useState(periodoAtual.inicio);
   const [dataFim, setDataFim] = useState(periodoAtual.fim);
   const [busca, setBusca] = useState("");
+  const [dadosAno, setDadosAno] = useState<ContaPaga[]>([]);
+  const [loadingAno, setLoadingAno] = useState(false);
+  const [anoComparativo, setAnoComparativo] = useState(
+    criarDataLocal(periodoAtual.inicio).getFullYear()
+  );
+  const [planoSelecionado, setPlanoSelecionado] = useState("");
+  const [buscaPlanoComparativo, setBuscaPlanoComparativo] = useState("");
   const [totalMesAnterior, setTotalMesAnterior] = useState(0);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [modalAnalise, setModalAnalise] = useState(false);
@@ -117,6 +142,10 @@ export default function ContasPagasPage() {
   useEffect(() => {
     setPaginaAtual(1);
   }, [busca, dataInicio, dataFim]);
+
+  useEffect(() => {
+    carregarDadosAno();
+  }, [anoComparativo]);
 
   async function carregarDados() {
     setLoading(true);
@@ -155,6 +184,44 @@ export default function ContasPagasPage() {
 
     setDados(todosDados);
     setLoading(false);
+  }
+
+  async function carregarDadosAno() {
+    setLoadingAno(true);
+
+    const inicioAno = `${anoComparativo}-01-01`;
+    const fimAno = `${anoComparativo}-12-31`;
+
+    let todosDados: ContaPaga[] = [];
+    let inicio = 0;
+    const limite = 1000;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("contas_pagas")
+        .select("*")
+        .gte("data", inicioAno)
+        .lte("data", fimAno)
+        .order("data", { ascending: true })
+        .range(inicio, inicio + limite - 1);
+
+      if (error) {
+        console.error(error);
+        setLoadingAno(false);
+        return;
+      }
+
+      if (!data || data.length === 0) break;
+
+      todosDados = [...todosDados, ...data];
+
+      if (data.length < limite) break;
+
+      inicio += limite;
+    }
+
+    setDadosAno(todosDados);
+    setLoadingAno(false);
   }
 
   async function carregarMesAnterior() {
@@ -441,6 +508,82 @@ export default function ContasPagasPage() {
 
     return Array.from(paginas).sort((a, b) => a - b);
   }, [paginaAtual, totalPaginas]);
+
+  const listaPlanosComparativo = useMemo(() => {
+    return Array.from(
+      new Set(
+        dadosAno
+          .map((item) => item.plano_contas || "Sem plano")
+          .filter(Boolean)
+      )
+    ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [dadosAno]);
+
+  useEffect(() => {
+    if (!planoSelecionado && listaPlanosComparativo.length > 0) {
+      setPlanoSelecionado(listaPlanosComparativo[0]);
+    }
+
+    if (
+      planoSelecionado &&
+      listaPlanosComparativo.length > 0 &&
+      !listaPlanosComparativo.includes(planoSelecionado)
+    ) {
+      setPlanoSelecionado(listaPlanosComparativo[0]);
+    }
+  }, [listaPlanosComparativo, planoSelecionado]);
+
+  const planosFiltradosComparativo = useMemo(() => {
+    const termo = buscaPlanoComparativo.toLowerCase().trim();
+    if (!termo) return listaPlanosComparativo;
+    return listaPlanosComparativo.filter((plano) =>
+      plano.toLowerCase().includes(termo)
+    );
+  }, [listaPlanosComparativo, buscaPlanoComparativo]);
+
+  const comparativoPlanoMensal = useMemo(() => {
+    const resultado = mesesComparativo.map((mes, index) => ({
+      mes,
+      mesCompleto: nomesMesesCompletos[index],
+      total: 0,
+    }));
+
+    if (!planoSelecionado) return resultado;
+
+    dadosAno.forEach((item) => {
+      const data = criarDataLocal(item.data);
+
+      if (
+        data.getFullYear() === anoComparativo &&
+        (item.plano_contas || "Sem plano") === planoSelecionado
+      ) {
+        resultado[data.getMonth()].total += Number(item.valor || 0);
+      }
+    });
+
+    return resultado;
+  }, [dadosAno, planoSelecionado, anoComparativo]);
+
+  const totalPlanoAno = comparativoPlanoMensal.reduce(
+    (acc, item) => acc + item.total,
+    0
+  );
+
+  const mesesComValorPlano = comparativoPlanoMensal.filter(
+    (item) => item.total > 0
+  );
+
+  const mediaPlanoAno = mesesComValorPlano.length
+    ? totalPlanoAno / mesesComValorPlano.length
+    : 0;
+
+  const maiorMesPlano = [...comparativoPlanoMensal]
+    .filter((item) => item.total > 0)
+    .sort((a, b) => b.total - a.total)[0];
+
+  const menorMesPlano = [...comparativoPlanoMensal]
+    .filter((item) => item.total > 0)
+    .sort((a, b) => a.total - b.total)[0];
 
   const variacao =
     totalMesAnterior > 0
@@ -1290,6 +1433,253 @@ export default function ContasPagasPage() {
           </div>
         </div>
 
+        <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-bold text-white 2xl:text-xl">
+                Comparativo Anual por Plano de Contas
+              </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Compare mês a mês os gastos do plano selecionado no ano.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <select
+                value={anoComparativo}
+                onChange={(e) => setAnoComparativo(Number(e.target.value))}
+                className="rounded-2xl border border-[#95c11f]/40 bg-[#0f1f3a] px-5 py-2.5 text-sm font-bold text-white shadow-[0_12px_32px_rgba(15,59,130,0.22)] outline-none transition hover:border-[#95c11f] focus:border-[#95c11f] [color-scheme:dark]"
+              >
+                <option className="bg-[#0f1f3a] text-white" value="2025">2025</option>
+                <option className="bg-[#0f1f3a] text-white" value="2026">2026</option>
+                <option className="bg-[#0f1f3a] text-white" value="2027">2027</option>
+              </select>
+
+              <button
+                onClick={carregarDadosAno}
+                className="flex items-center gap-2 rounded-2xl border border-[#95c11f]/30 px-4 py-2.5 text-sm font-semibold text-[#95c11f] transition hover:bg-white/[0.08]"
+              >
+                <RefreshCcw size={16} />
+                Atualizar ano
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_1fr] 2xl:grid-cols-[320px_1fr_230px]">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+              <label className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                Plano de Contas
+              </label>
+
+              <select
+                value={planoSelecionado}
+                onChange={(e) => setPlanoSelecionado(e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-[#0f1f3a] px-4 py-3 text-sm font-bold text-white outline-none transition hover:border-[#95c11f]/60 focus:border-[#95c11f]"
+              >
+                {listaPlanosComparativo.length === 0 && (
+                  <option value="">Nenhum plano encontrado</option>
+                )}
+
+                {listaPlanosComparativo.map((plano) => (
+                  <option key={plano} value={plano}>
+                    {plano}
+                  </option>
+                ))}
+              </select>
+
+              <div className="relative mt-3">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+                <input
+                  value={buscaPlanoComparativo}
+                  onChange={(e) => setBuscaPlanoComparativo(e.target.value)}
+                  placeholder="Buscar plano..."
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.06] py-3 pl-9 pr-4 text-sm text-white outline-none placeholder:text-slate-500"
+                />
+              </div>
+
+              {buscaPlanoComparativo.trim() && (
+                <div className="mt-3 max-h-[270px] space-y-2 overflow-auto pr-1">
+                  {planosFiltradosComparativo.slice(0, 12).map((plano) => {
+                    const ativo = plano === planoSelecionado;
+
+                    return (
+                      <button
+                        key={plano}
+                        onClick={() => {
+                          setPlanoSelecionado(plano);
+                          setBuscaPlanoComparativo(plano);
+                        }}
+                        className={`w-full rounded-xl px-3 py-2 text-left text-xs font-semibold transition ${
+                          ativo
+                            ? "bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] text-white shadow-[0_12px_28px_rgba(29,78,216,0.25)]"
+                            : "text-slate-300 hover:bg-white/[0.06] hover:text-white"
+                        }`}
+                        title={plano}
+                      >
+                        {cortarTexto(plano, 32)}
+                      </button>
+                    );
+                  })}
+
+                  {planosFiltradosComparativo.length === 0 && (
+                    <p className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-slate-400">
+                      Nenhum plano encontrado.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {planoSelecionado || "Selecione um plano"}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Total por mês em {anoComparativo}
+                  </p>
+                </div>
+
+                <div className="rounded-full border border-[#1d4ed8]/20 bg-[#1d4ed8]/10 px-3 py-1 text-xs font-bold text-[#3b82f6]">
+                  Total no ano: {moeda(totalPlanoAno)}
+                </div>
+              </div>
+
+              <div className="h-[360px] min-h-[360px] min-w-[320px]">
+                <ResponsiveContainer width="100%" height="100%" minWidth={320} minHeight={320}>
+                  <BarChart
+                    data={comparativoPlanoMensal}
+                    margin={{ top: 30, right: 18, left: 0, bottom: 8 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
+
+                    <XAxis
+                      dataKey="mes"
+                      tick={{ fontSize: 12, fill: "#94a3b8", fontWeight: 700 }}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      tickFormatter={(value) => `${Number(value) / 1000}k`}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+
+                    <Tooltip
+                      formatter={(v: any) => [moeda(Number(v)), "Total"]}
+                      labelFormatter={(label) => {
+                        const item = comparativoPlanoMensal.find(
+                          (mes) => mes.mes === label
+                        );
+                        return item ? `${item.mesCompleto}/${anoComparativo}` : String(label);
+                      }}
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: claro
+                          ? "1px solid #dbeafe"
+                          : "1px solid rgba(149,193,31,0.25)",
+                        background: claro ? "#ffffff" : "#0b1220",
+                        color: claro ? "#0f172a" : "#ffffff",
+                        boxShadow: claro
+                          ? "0 18px 45px rgba(15,59,130,0.12)"
+                          : "0 18px 50px rgba(0,0,0,0.45)",
+                      }}
+                      labelStyle={{
+                        color: claro ? "#0f3b82" : "#95c11f",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                      itemStyle={{
+                        color: claro ? "#0f172a" : "#ffffff",
+                        fontWeight: 700,
+                      }}
+                    />
+
+                    <Bar
+                      dataKey="total"
+                      fill="#1d4ed8"
+                      radius={[12, 12, 0, 0]}
+                      barSize={42}
+                    >
+                      <LabelList
+                        dataKey="total"
+                        position="top"
+                        offset={10}
+                        formatter={(v: any) => Number(v) > 0 ? moedaCompacta(Number(v)) : ""}
+                        style={{
+                          fontSize: 10,
+                          fill: claro ? "#0f172a" : "#ffffff",
+                          fontWeight: 800,
+                        }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <p className="mt-2 text-xs text-slate-400">
+                * O filtro mensal da página não interfere neste gráfico. Ele usa todos os lançamentos encontrados no ano selecionado.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+              <h3 className="text-base font-bold text-white">Resumo do Plano</h3>
+
+              {loadingAno ? (
+                <p className="mt-4 text-sm text-slate-400">Carregando comparativo...</p>
+              ) : (
+                <div className="mt-5 space-y-5">
+                  <div>
+                    <p className="text-xs text-slate-400">Plano selecionado</p>
+                    <p className="mt-1 text-sm font-bold text-[#3b82f6]">
+                      {planoSelecionado || "-"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-400">Total no ano</p>
+                    <p className="mt-1 text-xl font-black text-white">
+                      {moeda(totalPlanoAno)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-400">Média mensal</p>
+                    <p className="mt-1 text-lg font-bold text-white">
+                      {moeda(mediaPlanoAno)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-400">Maior mês</p>
+                    <p className="mt-1 text-sm font-bold text-[#95c11f]">
+                      {maiorMesPlano
+                        ? `${maiorMesPlano.mesCompleto} - ${moeda(maiorMesPlano.total)}`
+                        : "-"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-400">Menor mês</p>
+                    <p className="mt-1 text-sm font-bold text-red-500">
+                      {menorMesPlano
+                        ? `${menorMesPlano.mesCompleto} - ${moeda(menorMesPlano.total)}`
+                        : "-"}
+                    </p>
+                  </div>
+
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 items-start gap-6 2xl:grid-cols-[2fr_1fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6 min-w-0">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
@@ -1549,7 +1939,6 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
-
 
 
 
