@@ -22,6 +22,7 @@ import {
   BadgeDollarSign,
 } from "lucide-react";
 import AppShell from "../components/AppShell";
+import TooltipPremium from "../components/charts/TooltipPremium";
 import { supabase } from "../lib/supabase";
 import { useTheme } from "../lib/theme";
 import {
@@ -48,6 +49,12 @@ type ValorRecebido = {
   valor: number;
   valor_tarifas?: number;
   valor_liquido?: number;
+};
+
+type VendaEntrada = {
+  id: string;
+  data: string;
+  entrada?: number;
 };
 
 type EspecieResumo = {
@@ -132,6 +139,9 @@ export default function ValoresRecebidosPage() {
   const claro = theme === "light";
   const periodoAtual = getPeriodoAtual();
   const [dados, setDados] = useState<ValorRecebido[]>([]);
+  const [vendasEntrada, setVendasEntrada] = useState<VendaEntrada[]>([]);
+  const [recebimentosHistorico, setRecebimentosHistorico] = useState<ValorRecebido[]>([]);
+  const [vendasHistorico, setVendasHistorico] = useState<VendaEntrada[]>([]);
   const [loading, setLoading] = useState(true);
   const [dataInicio, setDataInicio] = useState(periodoAtual.inicio);
   const [dataFim, setDataFim] = useState(periodoAtual.fim);
@@ -145,6 +155,10 @@ export default function ValoresRecebidosPage() {
   }, [dataInicio, dataFim]);
 
   useEffect(() => {
+    carregarHistoricoCompleto();
+  }, []);
+
+  useEffect(() => {
     carregarMesAnterior();
   }, [dataInicio]);
 
@@ -155,40 +169,111 @@ export default function ValoresRecebidosPage() {
   async function carregarDados() {
     setLoading(true);
 
-    let todosDados: ValorRecebido[] = [];
-    let inicio = 0;
-    const limite = 1000;
+    try {
+      const limite = 1000;
 
-    while (true) {
-      const { data, error } = await supabase
-        .from("recebimentos")
-        .select("*")
-        .gte("data", dataInicio)
-        .lte("data", dataFim)
-        .order("data", { ascending: false })
-        .range(inicio, inicio + limite - 1);
+      let todosRecebimentos: ValorRecebido[] = [];
+      let inicioRecebimentos = 0;
 
-      if (error) {
-        console.error(error);
-        setLoading(false);
-        return;
+      while (true) {
+        const { data, error } = await supabase
+          .from("recebimentos")
+          .select("*")
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: false })
+          .range(inicioRecebimentos, inicioRecebimentos + limite - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        todosRecebimentos = [...todosRecebimentos, ...data];
+
+        if (data.length < limite) break;
+        inicioRecebimentos += limite;
       }
 
-      if (!data || data.length === 0) {
-        break;
+      let todasEntradas: VendaEntrada[] = [];
+      let inicioVendas = 0;
+
+      while (true) {
+        const { data, error } = await supabase
+          .from("vendas")
+          .select("id, data, entrada")
+          .gte("data", dataInicio)
+          .lte("data", dataFim)
+          .order("data", { ascending: false })
+          .range(inicioVendas, inicioVendas + limite - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        todasEntradas = [...todasEntradas, ...data];
+
+        if (data.length < limite) break;
+        inicioVendas += limite;
       }
 
-      todosDados = [...todosDados, ...data];
-
-      if (data.length < limite) {
-        break;
-      }
-
-      inicio += limite;
+      setDados(todosRecebimentos);
+      setVendasEntrada(todasEntradas);
+    } catch (error) {
+      console.error(error);
+      setDados([]);
+      setVendasEntrada([]);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    setDados(todosDados);
-    setLoading(false);
+  async function carregarHistoricoCompleto() {
+    try {
+      const limite = 1000;
+
+      let todosRecebimentos: ValorRecebido[] = [];
+      let inicioRecebimentos = 0;
+
+      while (true) {
+        const { data, error } = await supabase
+          .from("recebimentos")
+          .select("id, data, paciente, especie, valor, valor_tarifas, valor_liquido")
+          .order("data", { ascending: true })
+          .range(inicioRecebimentos, inicioRecebimentos + limite - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        todosRecebimentos = [...todosRecebimentos, ...data];
+
+        if (data.length < limite) break;
+        inicioRecebimentos += limite;
+      }
+
+      let todasVendas: VendaEntrada[] = [];
+      let inicioVendas = 0;
+
+      while (true) {
+        const { data, error } = await supabase
+          .from("vendas")
+          .select("id, data, entrada")
+          .order("data", { ascending: true })
+          .range(inicioVendas, inicioVendas + limite - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        todasVendas = [...todasVendas, ...data];
+
+        if (data.length < limite) break;
+        inicioVendas += limite;
+      }
+
+      setRecebimentosHistorico(todosRecebimentos);
+      setVendasHistorico(todasVendas);
+    } catch (error) {
+      console.error("Erro ao carregar histórico completo:", error);
+      setRecebimentosHistorico([]);
+      setVendasHistorico([]);
+    }
   }
 
   async function carregarMesAnterior() {
@@ -313,6 +398,79 @@ export default function ValoresRecebidosPage() {
   const totalBruto = dados.reduce((acc, item) => acc + valorBruto(item), 0);
   const totalTaxas = dados.reduce((acc, item) => acc + valorTarifa(item), 0);
   const totalRecebido = dados.reduce((acc, item) => acc + valorLiquido(item), 0);
+
+  const totalEntradasVendas = vendasEntrada.reduce(
+    (acc, item) => acc + Number(item.entrada || 0),
+    0
+  );
+
+  const totalQueEntrou = totalBruto;
+  const totalRecebiveis = Math.max(
+    totalQueEntrou - totalEntradasVendas,
+    0
+  );
+
+  const percentualEntradas =
+    totalQueEntrou > 0 ? (totalEntradasVendas / totalQueEntrou) * 100 : 0;
+
+  const percentualRecebiveis =
+    totalQueEntrou > 0 ? (totalRecebiveis / totalQueEntrou) * 100 : 0;
+
+  const origemRecebimentos = [
+    { nome: "Entradas nas Vendas", total: totalEntradasVendas, percentual: percentualEntradas, cor: "#1d4ed8" },
+    { nome: "Recebíveis", total: totalRecebiveis, percentual: percentualRecebiveis, cor: "#16a34a" },
+  ];
+
+  const evolucaoRecebimentosOrigem = useMemo(() => {
+    const agrupado: Record<
+      string,
+      {
+        chave: string;
+        mes: string;
+        entradas: number;
+        totalRecebido: number;
+        recebiveis: number;
+      }
+    > = {};
+
+    const obterMes = (data: string) => {
+      const chave = data.slice(0, 7);
+
+      if (!agrupado[chave]) {
+        const [ano, mes] = chave.split("-").map(Number);
+
+        agrupado[chave] = {
+          chave,
+          mes: new Date(ano, mes - 1, 1).toLocaleDateString("pt-BR", {
+            month: "short",
+            year: "numeric",
+          }),
+          entradas: 0,
+          totalRecebido: 0,
+          recebiveis: 0,
+        };
+      }
+
+      return agrupado[chave];
+    };
+
+    vendasHistorico.forEach((item) => {
+      if (!item.data) return;
+      obterMes(item.data).entradas += Number(item.entrada || 0);
+    });
+
+    recebimentosHistorico.forEach((item) => {
+      if (!item.data) return;
+      obterMes(item.data).totalRecebido += Number(item.valor || 0);
+    });
+
+    return Object.values(agrupado)
+      .map((item) => ({
+        ...item,
+        recebiveis: Math.max(item.totalRecebido - item.entradas, 0),
+      }))
+      .sort((a, b) => a.chave.localeCompare(b.chave));
+  }, [recebimentosHistorico, vendasHistorico]);
 
   const quantidade = dados.length;
   const media = quantidade ? totalRecebido / quantidade : 0;
@@ -531,7 +689,13 @@ export default function ValoresRecebidosPage() {
               <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} className="bg-transparent outline-none text-sm text-slate-200 [color-scheme:dark]" />
             </div>
 
-            <button onClick={carregarDados} className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)] 2xl:px-5 2xl:py-3">
+            <button
+              onClick={() => {
+                carregarDados();
+                carregarHistoricoCompleto();
+              }}
+              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)] 2xl:px-5 2xl:py-3"
+            >
               <RefreshCcw size={16} />
               Atualizar
             </button>
@@ -612,6 +776,131 @@ export default function ValoresRecebidosPage() {
               </div>
             );
           })}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[0.9fr_2.1fr] 2xl:gap-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-white 2xl:text-lg">Origem dos Recebimentos</h2>
+              <p className="mt-1 text-xs text-slate-400">Comparativo entre entradas nas vendas e recebíveis</p>
+            </div>
+
+            <div className="grid grid-cols-1 items-center gap-4 xl:grid-cols-[190px_1fr]">
+              <div className="relative mx-auto h-[230px] w-[190px]">
+                <ResponsiveContainer width="100%" height="100%" minWidth={190} minHeight={220}>
+                  <PieChart>
+                    <Pie
+                      data={origemRecebimentos}
+                      dataKey="total"
+                      nameKey="nome"
+                      innerRadius={58}
+                      outerRadius={88}
+                      paddingAngle={1}
+                      stroke={claro ? "#ffffff" : "#020817"}
+                      strokeWidth={2}
+                    >
+                      {origemRecebimentos.map((item) => (
+                        <Cell key={item.nome} fill={item.cor} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      content={
+                        <TooltipPremium
+                          claro={claro}
+                          valueFormatter={(valor) => moeda(Number(valor))}
+                          nameFormatter={(nome) =>
+                            nome === "total" ? "Total" : String(nome)
+                          }
+                        />
+                      }
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <p className="text-[11px] font-semibold text-slate-400">Total</p>
+                    <p className="text-sm font-bold text-white">{moeda(totalQueEntrou)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {origemRecebimentos.map((item) => (
+                  <div key={item.nome} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.cor }} />
+                      <p className="text-sm font-semibold text-white">{item.nome}</p>
+                    </div>
+                    <div className="mt-2 flex items-end justify-between gap-3">
+                      <p className="text-base font-bold text-white">{moeda(item.total)}</p>
+                      <p className="text-sm font-bold text-slate-300">
+                        {item.percentual.toFixed(1).replace(".", ",")}%
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-[#1d4ed8]/25 bg-[#1d4ed8]/10 px-4 py-3">
+              <p className="text-sm font-semibold text-slate-300">Total que entrou no período</p>
+              <p className="text-lg font-extrabold text-[#3b82f6]">{moeda(totalQueEntrou)}</p>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-white 2xl:text-lg">Evolução dos Recebimentos por Origem</h2>
+              <p className="mt-1 text-xs text-slate-400">Todos os meses disponíveis no banco de dados</p>
+            </div>
+
+            <div className="h-[330px] min-h-[330px] min-w-[320px] 2xl:h-[420px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={320} minHeight={300}>
+                <BarChart data={evolucaoRecebimentosOrigem} margin={{ top: 28, right: 16, left: 0, bottom: 8 }} barGap={8}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} axisLine={false} tickLine={false} />
+                  <Tooltip
+                    content={
+                      <TooltipPremium
+                        claro={claro}
+                        valueFormatter={(valor) => moeda(Number(valor))}
+                        nameFormatter={(nome) =>
+                          nome === "entradas"
+                            ? "Entradas nas Vendas"
+                            : "Recebíveis"
+                        }
+                      />
+                    }
+                    cursor={{
+                      fill: claro
+                        ? "rgba(15,59,130,0.05)"
+                        : "rgba(255,255,255,0.04)",
+                    }}
+                  />
+                  <Bar dataKey="entradas" name="entradas" fill="#1d4ed8" radius={[10, 10, 0, 0]} barSize={38}>
+                    <LabelList
+                      dataKey="entradas"
+                      position="top"
+                      offset={8}
+                      formatter={(v: any) => Number(v) > 0 ? `${(Number(v) / 1000).toFixed(0)}k` : ""}
+                      style={{ fontSize: 10, fill: claro ? "#0f3b82" : "#93c5fd", fontWeight: 700 }}
+                    />
+                  </Bar>
+                  <Bar dataKey="recebiveis" name="recebiveis" fill="#16a34a" radius={[10, 10, 0, 0]} barSize={38}>
+                    <LabelList
+                      dataKey="recebiveis"
+                      position="top"
+                      offset={8}
+                      formatter={(v: any) => Number(v) > 0 ? `${(Number(v) / 1000).toFixed(0)}k` : ""}
+                      style={{ fontSize: 10, fill: claro ? "#166534" : "#86efac", fontWeight: 700 }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
@@ -696,7 +985,7 @@ export default function ValoresRecebidosPage() {
               <BarChart data={porEspecie.slice(0, 6)} margin={{ top: 25, right: 16, left: 0, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
                 <XAxis
-                  dataKey="nomeCurto"
+                  dataKey="nome"
                   interval={0}
                   height={95}
                   tick={renderTickEspecie}
@@ -705,15 +994,23 @@ export default function ValoresRecebidosPage() {
                   axisLine={false}
                 />
                 <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
-                    borderRadius: 16,
-                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
-                    background: claro ? "#ffffff" : "#0b1220",
-                    color: claro ? "#0f172a" : "#ffffff",
-                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                <Tooltip
+                  content={
+                    <TooltipPremium
+                      claro={claro}
+                      valueFormatter={(valor) => moeda(Number(valor))}
+                      nameFormatter={() => "Total"}
+                      labelFormatter={(label) =>
+                        String(label || "Sem espécie")
+                      }
+                    />
+                  }
+                  cursor={{
+                    fill: claro
+                      ? "rgba(15,59,130,0.05)"
+                      : "rgba(255,255,255,0.04)",
                   }}
-                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
-                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
+                />
                 <Bar dataKey="total" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={42}>
                   <LabelList dataKey="total" position="top" offset={10} formatter={(v: any) => moeda(Number(v))} style={{ fontSize: 10, fill: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
                 </Bar>
@@ -956,6 +1253,10 @@ export default function ValoresRecebidosPage() {
     </AppShell>
   );
 }
+
+
+
+
 
 
 

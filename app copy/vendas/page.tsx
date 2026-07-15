@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import { supabase } from "../lib/supabase";
-import { useTheme } from "../lib/theme";
 import {
   LineChart,
   Line,
@@ -46,7 +45,6 @@ type Venda = {
   data: string;
   paciente: string;
   valor: number;
-  entrada?: number;
   qtd_titulos?: number;
   quantidade_titulos?: number;
   titulos?: number;
@@ -96,12 +94,9 @@ function qtdTitulos(item: Venda) {
 }
 
 export default function VendasPage() {
-  const { theme } = useTheme();
-  const claro = theme === "light";
   const periodoAtual = getPeriodoAtual();
 
   const [dados, setDados] = useState<Venda[]>([]);
-  const [historicoVendas, setHistoricoVendas] = useState<Venda[]>([]);
   const [loading, setLoading] = useState(true);
   const [dataInicio, setDataInicio] = useState(periodoAtual.inicio);
   const [dataFim, setDataFim] = useState(periodoAtual.fim);
@@ -115,10 +110,6 @@ export default function VendasPage() {
   }, [dataInicio, dataFim]);
 
   useEffect(() => {
-    carregarHistoricoCompleto();
-  }, []);
-
-  useEffect(() => {
     carregarMesAnterior();
   }, [dataInicio]);
 
@@ -129,63 +120,21 @@ export default function VendasPage() {
   async function carregarDados() {
     setLoading(true);
 
-    try {
-      const limite = 1000;
-      let todosDados: Venda[] = [];
-      let inicio = 0;
+    const { data, error } = await supabase
+      .from("vendas")
+      .select("*")
+      .gte("data", dataInicio)
+      .lte("data", dataFim)
+      .order("data", { ascending: false });
 
-      while (true) {
-        const { data, error } = await supabase
-          .from("vendas")
-          .select("*")
-          .gte("data", dataInicio)
-          .lte("data", dataFim)
-          .order("data", { ascending: false })
-          .range(inicio, inicio + limite - 1);
-
-        if (error) throw error;
-        if (!data || data.length === 0) break;
-
-        todosDados = [...todosDados, ...data];
-        if (data.length < limite) break;
-        inicio += limite;
-      }
-
-      setDados(todosDados);
-    } catch (error) {
+    if (error) {
       console.error(error);
-      setDados([]);
-    } finally {
       setLoading(false);
+      return;
     }
-  }
 
-  async function carregarHistoricoCompleto() {
-    try {
-      const limite = 1000;
-      let todosDados: Venda[] = [];
-      let inicio = 0;
-
-      while (true) {
-        const { data, error } = await supabase
-          .from("vendas")
-          .select("id, data, paciente, valor, entrada, qtd_titulos")
-          .order("data", { ascending: true })
-          .range(inicio, inicio + limite - 1);
-
-        if (error) throw error;
-        if (!data || data.length === 0) break;
-
-        todosDados = [...todosDados, ...data];
-        if (data.length < limite) break;
-        inicio += limite;
-      }
-
-      setHistoricoVendas(todosDados);
-    } catch (error) {
-      console.error("Erro ao carregar histórico de vendas:", error);
-      setHistoricoVendas([]);
-    }
+    setDados(data || []);
+    setLoading(false);
   }
 
   async function carregarMesAnterior() {
@@ -242,7 +191,7 @@ export default function VendasPage() {
             y={index * 13}
             dy={14}
             textAnchor="middle"
-            fill="#94a3b8"
+            fill="#36577d"
             fontSize={11}
             fontWeight={600}
           >
@@ -256,14 +205,13 @@ export default function VendasPage() {
   
 
   function exportarCSV() {
-    const cabecalho = ["Data", "Paciente", "Qtd. Títulos", "Valor", "Entrada"];
+    const cabecalho = ["Data", "Paciente", "Qtd. Títulos", "Valor"];
 
     const linhas = dadosFiltrados.map((item) => [
       formatarData(item.data),
       item.paciente || "",
       qtdTitulos(item),
       String(item.valor || 0).replace(".", ","),
-      String(item.entrada || 0).replace(".", ","),
     ]);
 
     const csv = [cabecalho, ...linhas]
@@ -287,42 +235,6 @@ export default function VendasPage() {
   const quantidadeVendas = dados.length;
   const ticketMedio = quantidadeVendas ? totalVendido / quantidadeVendas : 0;
   const totalTitulos = dados.reduce((acc, item) => acc + qtdTitulos(item), 0);
-
-  const totalEntradas = dados.reduce((acc, item) => acc + Number(item.entrada || 0), 0);
-  const percentualEntrada = totalVendido > 0 ? (totalEntradas / totalVendido) * 100 : 0;
-  const vendasComEntrada = dados.filter((item) => Number(item.entrada || 0) > 0).length;
-  const mediaEntradaPorVenda = vendasComEntrada > 0 ? totalEntradas / vendasComEntrada : 0;
-  const maiorEntradaItem = [...dados].sort((a, b) => Number(b.entrada || 0) - Number(a.entrada || 0))[0];
-  const maiorEntrada = maiorEntradaItem ? Number(maiorEntradaItem.entrada || 0) : 0;
-
-  const graficoPercentualEntrada = [
-    { nome: "Entrada", total: totalEntradas, cor: "#1d4ed8" },
-    { nome: "Demais valores", total: Math.max(totalVendido - totalEntradas, 0), cor: "#cbd5e1" },
-  ];
-
-  const evolucaoVendasEntradas = useMemo(() => {
-    const agrupado: Record<string, { chave: string; mes: string; vendido: number; entradas: number }> = {};
-
-    historicoVendas.forEach((item) => {
-      if (!item.data) return;
-      const chave = item.data.slice(0, 7);
-
-      if (!agrupado[chave]) {
-        const [ano, mes] = chave.split("-").map(Number);
-        agrupado[chave] = {
-          chave,
-          mes: new Date(ano, mes - 1, 1).toLocaleDateString("pt-BR", { month: "short", year: "numeric" }),
-          vendido: 0,
-          entradas: 0,
-        };
-      }
-
-      agrupado[chave].vendido += Number(item.valor || 0);
-      agrupado[chave].entradas += Number(item.entrada || 0);
-    });
-
-    return Object.values(agrupado).sort((a, b) => a.chave.localeCompare(b.chave));
-  }, [historicoVendas]);
 
   const maiorVendaItem = [...dados].sort(
     (a, b) => Number(b.valor || 0) - Number(a.valor || 0)
@@ -494,102 +406,12 @@ export default function VendasPage() {
 
   return (
     <AppShell>
-      <div
-        className={`vendas-theme relative min-h-screen overflow-hidden rounded-[40px] border p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-colors duration-300 lg:p-8 ${
-          claro
-            ? "vendas-light border-slate-200 bg-[#f4f7fb] text-slate-950"
-            : "vendas-dark border-white/10 bg-[#020817] text-white"
-        }`}
-      >
-        <style>{`
-          .vendas-light > .pointer-events-none {
-            display: none !important;
-          }
-
-          .vendas-light [class*="bg-white"] {
-            background-color: #ffffff !important;
-          }
-
-          .vendas-light [class*="border-white"] {
-            border-color: #e2e8f0 !important;
-          }
-
-          .vendas-light [class*="text-white"] {
-            color: #0f172a !important;
-          }
-
-          .vendas-light [class*="text-slate-400"] {
-            color: #64748b !important;
-          }
-
-          .vendas-light [class*="text-slate-300"] {
-            color: #475569 !important;
-          }
-
-          .vendas-light [class*="bg-[#0b1220]"] {
-            background-color: #f1f5f9 !important;
-          }
-
-          .vendas-light input,
-          .vendas-light select {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-            border-color: #bfdbfe !important;
-            color-scheme: light !important;
-          }
-
-          .vendas-light option {
-            background-color: #ffffff !important;
-            color: #0f172a !important;
-          }
-
-          .vendas-light table {
-            color: #0f172a !important;
-          }
-
-          .vendas-light table thead tr {
-            background-color: #f1f5f9 !important;
-          }
-
-          .vendas-light th {
-            color: #475569 !important;
-          }
-
-          .vendas-light td {
-            color: #0f172a !important;
-          }
-
-          .vendas-light table tbody tr {
-            border-color: #e2e8f0 !important;
-          }
-
-          .vendas-light tbody tr:hover {
-            background-color: #eff6ff !important;
-          }
-
-          .vendas-light tbody tr:hover td {
-            color: #0f172a !important;
-          }
-
-          .vendas-light .recharts-cartesian-grid line {
-            stroke: #dbeafe !important;
-          }
-
-          .vendas-light .recharts-text {
-            fill: #475569 !important;
-          }
-        `}</style>
-        <div className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-[#0f3b82]/35 blur-[110px]" />
-        <div className="pointer-events-none absolute bottom-0 right-0 h-[480px] w-[480px] rounded-full bg-[#95c11f]/15 blur-[120px]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:52px_52px]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_35%),linear-gradient(135deg,rgba(15,59,130,0.24),transparent_45%,rgba(149,193,31,0.08))]" />
-
-        <div className="relative z-10 space-y-4 lg:space-y-5 2xl:space-y-6">
+      <div className="min-h-screen space-y-4 bg-[radial-gradient(circle_at_top_left,rgba(15,59,130,0.13),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#ffffff_42%,#f3f8ea_100%)] p-1 lg:space-y-5 2xl:space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-bold tracking-wide text-[#95c11f]">BI Financeiro</p>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white 2xl:text-4xl">Vendas</h1>
-            <p className="mt-2 text-slate-400">
+            <p className="text-sm font-bold tracking-wide text-[#0f3b82]">BI Financeiro</p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#020817] 2xl:text-4xl">Vendas</h1>
+            <p className="mt-2 text-[#4b6380]">
               Análise detalhada das vendas realizadas por período.
             </p>
           </div>
@@ -597,19 +419,19 @@ export default function VendasPage() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/importar"
-              className="rounded-2xl border border-[#1d4ed8]/25 bg-white/[0.06] px-5 py-3 font-semibold text-white shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]"
+              className="rounded-2xl border border-[#0f3b82]/20 bg-white px-5 py-3 font-semibold text-[#0f3b82] shadow-[0_10px_28px_rgba(15,59,130,0.08)] transition hover:border-[#95c11f]/40 hover:shadow-[0_16px_36px_rgba(15,59,130,0.14)]"
             >
               Importar Planilhas
             </Link>
 
-            <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-200 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
+            <div className="flex items-center gap-3 rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 shadow-[0_10px_28px_rgba(15,59,130,0.07)]">
               <CalendarDays size={18} className="text-[#0f3b82]" />
 
               <input
                 type="date"
                 value={dataInicio}
                 onChange={(e) => setDataInicio(e.target.value)}
-                className="bg-transparent outline-none text-sm text-slate-200 [color-scheme:dark]"
+                className="outline-none text-sm"
               />
 
               <span className="text-slate-400">até</span>
@@ -618,15 +440,12 @@ export default function VendasPage() {
                 type="date"
                 value={dataFim}
                 onChange={(e) => setDataFim(e.target.value)}
-                className="bg-transparent outline-none text-sm text-slate-200 [color-scheme:dark]"
+                className="outline-none text-sm"
               />
             </div>
 
             <button
-              onClick={() => {
-                carregarDados();
-                carregarHistoricoCompleto();
-              }}
+              onClick={carregarDados}
               className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0f3b82] to-[#1d4ed8] px-5 py-3 font-semibold text-white shadow-[0_14px_35px_rgba(29,78,216,0.30)] transition hover:shadow-[0_18px_42px_rgba(29,78,216,0.40)]"
             >
               <RefreshCcw size={16} />
@@ -647,21 +466,21 @@ export default function VendasPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
             defaultValue={String(criarDataLocal(dataInicio).getMonth())}
           >
-            <option className="bg-[#0f1f3a] text-white" value="0">Janeiro</option>
-            <option className="bg-[#0f1f3a] text-white" value="1">Fevereiro</option>
-            <option className="bg-[#0f1f3a] text-white" value="2">Março</option>
-            <option className="bg-[#0f1f3a] text-white" value="3">Abril</option>
-            <option className="bg-[#0f1f3a] text-white" value="4">Maio</option>
-            <option className="bg-[#0f1f3a] text-white" value="5">Junho</option>
-            <option className="bg-[#0f1f3a] text-white" value="6">Julho</option>
-            <option className="bg-[#0f1f3a] text-white" value="7">Agosto</option>
-            <option className="bg-[#0f1f3a] text-white" value="8">Setembro</option>
-            <option className="bg-[#0f1f3a] text-white" value="9">Outubro</option>
-            <option className="bg-[#0f1f3a] text-white" value="10">Novembro</option>
-            <option className="bg-[#0f1f3a] text-white" value="11">Dezembro</option>
+            <option value="0">Janeiro</option>
+            <option value="1">Fevereiro</option>
+            <option value="2">Março</option>
+            <option value="3">Abril</option>
+            <option value="4">Maio</option>
+            <option value="5">Junho</option>
+            <option value="6">Julho</option>
+            <option value="7">Agosto</option>
+            <option value="8">Setembro</option>
+            <option value="9">Outubro</option>
+            <option value="10">Novembro</option>
+            <option value="11">Dezembro</option>
           </select>
 
           <select
@@ -675,12 +494,12 @@ export default function VendasPage() {
               setDataInicio(paraISO(inicio));
               setDataFim(paraISO(fim));
             }}
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-200 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
+            className="rounded-2xl border border-[#dbeafe] bg-white px-4 py-3 text-sm font-semibold text-[#0f2747] shadow-[0_10px_28px_rgba(15,59,130,0.07)] outline-none transition hover:border-[#0f3b82]/40 focus:border-[#95c11f]"
             defaultValue={String(criarDataLocal(dataInicio).getFullYear())}
           >
-            <option className="bg-[#0f1f3a] text-white" value="2025">2025</option>
-            <option className="bg-[#0f1f3a] text-white" value="2026">2026</option>
-            <option className="bg-[#0f1f3a] text-white" value="2027">2027</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
           </select>
         </div>
 
@@ -690,27 +509,27 @@ export default function VendasPage() {
               titulo: "Total Vendido",
               valor: moeda(totalVendido),
               detalhe: variacaoTexto,
-              cor: "text-[#3b82f6]",
+              cor: "text-[#0f3b82]",
               iconBg: "bg-[#0f3b82]/10",
-              iconColor: "text-[#3b82f6]",
+              iconColor: "text-[#0f3b82]",
               Icon: WalletCards,
             },
             {
               titulo: "Ticket Médio",
               valor: moeda(ticketMedio),
               detalhe: "por venda",
-              cor: "text-[#3b82f6]",
+              cor: "text-[#1d4ed8]",
               iconBg: "bg-[#1d4ed8]/10",
-              iconColor: "text-[#3b82f6]",
+              iconColor: "text-[#1d4ed8]",
               Icon: Tag,
             },
             {
               titulo: "Quantidade de Vendas",
               valor: quantidadeVendas,
               detalhe: "vendas realizadas",
-              cor: "text-[#3b82f6]",
-              iconBg: "bg-[#1d4ed8]/15",
-              iconColor: "text-[#3b82f6]",
+              cor: "text-[#1d4ed8]",
+              iconBg: "bg-[#dbeafe]",
+              iconColor: "text-[#0f3b82]",
               Icon: ShoppingCart,
             },
             {
@@ -735,9 +554,9 @@ export default function VendasPage() {
               titulo: "Total de Títulos",
               valor: totalTitulos,
               detalhe: "no período",
-              cor: "text-[#3b82f6]",
-              iconBg: "bg-[#1d4ed8]/15",
-              iconColor: "text-[#3b82f6]",
+              cor: "text-[#0f3b82]",
+              iconBg: "bg-[#dbeafe]",
+              iconColor: "text-[#0f3b82]",
               Icon: FileText,
             },
           ].map((item) => {
@@ -746,25 +565,48 @@ export default function VendasPage() {
             return (
               <div
                 key={item.titulo}
-                className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)] 2xl:min-h-[152px] 2xl:p-5 2xl:pr-16"
+                className="
+                  rounded-3xl
+                  border
+                  border-[#dbeafe]
+                  bg-white/90
+                  p-5
+                  shadow-[0_18px_45px_rgba(15,59,130,0.08)]
+                  backdrop-blur-sm
+                  transition-all
+                  duration-300
+                  hover:-translate-y-1
+                  hover:border-[#95c11f]/30
+                  hover:shadow-[0_22px_55px_rgba(15,59,130,0.14)]
+                "
               >
-                <div>
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xs text-slate-400 font-medium">
+                    <p className="text-xs text-slate-500 font-medium">
                       {item.titulo}
                     </p>
 
-                    <h2 className={`mt-3 whitespace-nowrap text-xl font-bold leading-tight ${item.cor} 2xl:mt-4 2xl:text-2xl`}>
+                    <h2 className={`text-2xl font-bold mt-3 ${item.cor}`}>
                       {item.valor}
                     </h2>
 
-                    <p className="mt-3 text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-400 mt-2">
                       {item.detalhe}
                     </p>
                   </div>
 
                   <div
-                    className={`${item.iconBg} ${item.iconColor} absolute right-2 top-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl 2xl:right-3 2xl:top-3 2xl:h-14 2xl:w-14`}
+                    className={`
+                      ${item.iconBg}
+                      ${item.iconColor}
+                      w-12
+                      h-12
+                      rounded-2xl
+                      flex
+                      items-center
+                      justify-center
+                      shrink-0
+                    `}
                   >
                     <Icon size={23} strokeWidth={2.4} />
                   </div>
@@ -774,129 +616,10 @@ export default function VendasPage() {
           })}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            { titulo: "Total de Entradas", valor: moeda(totalEntradas), detalhe: "recebido no momento da venda", Icon: BadgeDollarSign, bg: "bg-[#1d4ed8]/15", cor: "text-[#3b82f6]" },
-            { titulo: "Percentual de Entrada", valor: `${percentualEntrada.toFixed(1).replace(".", ",")}%`, detalhe: "sobre o total vendido", Icon: PercentCircle, bg: "bg-[#95c11f]/20", cor: "text-[#16a34a]" },
-            { titulo: "Média de Entrada", valor: moeda(mediaEntradaPorVenda), detalhe: "por venda com entrada", Icon: Activity, bg: "bg-[#1d4ed8]/10", cor: "text-[#3b82f6]" },
-            { titulo: "Vendas com Entrada", valor: `${vendasComEntrada} de ${quantidadeVendas}`, detalhe: quantidadeVendas > 0 ? `${((vendasComEntrada / quantidadeVendas) * 100).toFixed(1).replace(".", ",")}% das vendas` : "nenhuma venda no período", Icon: ShoppingCart, bg: "bg-[#95c11f]/15", cor: "text-[#6b7f16]" },
-          ].map((item) => {
-            const Icon = item.Icon;
-            return (
-              <div key={item.titulo} className="relative min-h-[132px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30">
-                <p className="text-xs font-medium text-slate-400">{item.titulo}</p>
-                <h3 className={`mt-3 text-xl font-bold ${item.cor}`}>{item.valor}</h3>
-                <p className="mt-3 text-[11px] text-slate-400">{item.detalhe}</p>
-                <div className={`${item.bg} ${item.cor} absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-2xl`}><Icon size={20} /></div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[0.9fr_2.1fr] 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
-            <div className="mb-4">
-              <h2 className="text-lg font-bold text-white">Entrada sobre o Total Vendido</h2>
-              <p className="mt-1 text-xs text-slate-400">Participação das entradas no montante vendido</p>
-            </div>
-            <div className="grid grid-cols-1 items-center gap-4 xl:grid-cols-[190px_1fr]">
-              <div className="relative mx-auto h-[230px] w-[190px]">
-                <ResponsiveContainer width="100%" height="100%" minWidth={190} minHeight={220}>
-                  <PieChart>
-                    <Pie data={graficoPercentualEntrada} dataKey="total" nameKey="nome" innerRadius={58} outerRadius={88} paddingAngle={1} startAngle={90} endAngle={-270} stroke={claro ? "#ffffff" : "#020817"} strokeWidth={2}>
-                      {graficoPercentualEntrada.map((item) => <Cell key={item.nome} fill={item.cor} />)}
-                    </Pie>
-                    <Tooltip
-                      formatter={(v: any, nome: any) => [
-                        moeda(Number(v)),
-                        nome === "Entrada" ? "Entradas" : "Demais valores",
-                      ]}
-                      contentStyle={{
-                        borderRadius: 16,
-                        border: claro
-                          ? "1px solid #dbeafe"
-                          : "1px solid rgba(149,193,31,0.25)",
-                        background: claro ? "#ffffff" : "#0b1220",
-                        color: claro ? "#0f172a" : "#ffffff",
-                        boxShadow: claro
-                          ? "0 18px 45px rgba(15,59,130,0.12)"
-                          : "0 18px 50px rgba(0,0,0,0.45)",
-                      }}
-                      labelStyle={{
-                        color: claro ? "#0f3b82" : "#95c11f",
-                        fontWeight: 800,
-                        marginBottom: 6,
-                      }}
-                      itemStyle={{
-                        color: claro ? "#0f172a" : "#ffffff",
-                        fontWeight: 700,
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <div className="text-center"><p className="text-[11px] font-semibold text-slate-400">Entrada</p><p className="text-xl font-extrabold text-[#3b82f6]">{percentualEntrada.toFixed(1).replace(".", ",")}%</p></div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-[#1d4ed8]/25 bg-[#1d4ed8]/10 p-4"><p className="text-xs font-semibold text-slate-400">Total de entradas</p><p className="mt-2 text-xl font-extrabold text-[#3b82f6]">{moeda(totalEntradas)}</p></div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"><p className="text-xs font-semibold text-slate-400">Total vendido</p><p className="mt-2 text-xl font-extrabold text-white">{moeda(totalVendido)}</p></div>
-                <div className="rounded-2xl border border-[#95c11f]/20 bg-[#95c11f]/10 p-4"><p className="text-xs font-semibold text-slate-400">Maior entrada do período</p><p className="mt-2 text-lg font-bold text-[#16a34a]">{moeda(maiorEntrada)}</p><p className="mt-1 text-xs text-slate-400">{maiorEntradaItem?.paciente || "-"}</p></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
-            <div className="mb-4"><h2 className="text-lg font-bold text-white">Total Vendido x Entradas por Mês</h2><p className="mt-1 text-xs text-slate-400">Todos os meses disponíveis no banco de dados</p></div>
-            <div className="h-[330px] min-h-[330px] min-w-[320px] 2xl:h-[420px]">
-              <ResponsiveContainer width="100%" height="100%" minWidth={320} minHeight={300}>
-                <BarChart data={evolucaoVendasEntradas} margin={{ top: 28, right: 16, left: 0, bottom: 8 }} barGap={8}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
-                  <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(value) => `${Number(value) / 1000}k`} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    formatter={(v: any, nome: any) => [
-                      moeda(Number(v)),
-                      nome === "vendido" ? "Total Vendido" : "Entradas",
-                    ]}
-                    contentStyle={{
-                      borderRadius: 16,
-                      border: claro
-                        ? "1px solid #dbeafe"
-                        : "1px solid rgba(149,193,31,0.25)",
-                      background: claro ? "#ffffff" : "#0b1220",
-                      color: claro ? "#0f172a" : "#ffffff",
-                      boxShadow: claro
-                        ? "0 18px 45px rgba(15,59,130,0.12)"
-                        : "0 18px 50px rgba(0,0,0,0.45)",
-                    }}
-                    labelStyle={{
-                      color: claro ? "#0f3b82" : "#95c11f",
-                      fontWeight: 800,
-                      marginBottom: 6,
-                    }}
-                    itemStyle={{
-                      color: claro ? "#0f172a" : "#ffffff",
-                      fontWeight: 700,
-                    }}
-                    cursor={{
-                      fill: claro
-                        ? "rgba(15,59,130,0.05)"
-                        : "rgba(255,255,255,0.04)",
-                    }}
-                  />
-                  <Bar dataKey="vendido" name="vendido" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={38}><LabelList dataKey="vendido" position="top" offset={8} formatter={(v: any) => Number(v) > 0 ? `${(Number(v) / 1000).toFixed(0)}k` : ""} style={{ fontSize: 10, fill: claro ? "#0f3b82" : "#93c5fd", fontWeight: 700 }} /></Bar>
-                  <Bar dataKey="entradas" name="entradas" fill="#16a34a" radius={[10, 10, 0, 0]} barSize={38}><LabelList dataKey="entradas" position="top" offset={8} formatter={(v: any) => Number(v) > 0 ? `${(Number(v) / 1000).toFixed(0)}k` : ""} style={{ fontSize: 10, fill: claro ? "#166534" : "#86efac", fontWeight: 700 }} /></Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="xl:col-span-1 rounded-3xl border border-white/10 bg-white/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl">
+          <div className="xl:col-span-1 rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Evolução das Vendas</h2>
+              <h2 className="text-lg font-bold text-[#020817]">Evolução das Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -904,7 +627,7 @@ export default function VendasPage() {
 
             <ResponsiveContainer width="100%" height={420}>
               <LineChart data={porDia} margin={{ top: 16, right: 20, left: 0, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
 
                 <XAxis
                   dataKey="data"
@@ -914,30 +637,26 @@ export default function VendasPage() {
                       month: "2-digit",
                     })
                   }
-                  tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
+                  tick={{ fontSize: 11, fill: "#36577d", fontWeight: 600 }}
                   axisLine={false}
                   tickLine={false}
                 />
 
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#36577d" }}
                   tickFormatter={(value) => `${Number(value) / 1000}k`}
                   axisLine={false}
                   tickLine={false}
                 />
 
                 <Tooltip
-                  formatter={(v: any) => [moeda(Number(v)), "Total"]}
+                  formatter={(v: any) => moeda(Number(v))}
                   labelFormatter={(label) => formatarData(String(label))}
                   contentStyle={{
                     borderRadius: 16,
-                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
-                    background: claro ? "#ffffff" : "#0b1220",
-                    color: claro ? "#0f172a" : "#ffffff",
-                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
+                    border: "1px solid #dbeafe",
+                    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.12)",
                   }}
-                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
-                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }}
                 />
 
                 <Line
@@ -952,9 +671,9 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl min-h-[420px]">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-6 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm min-h-[420px]">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-white">Vendas por Faixa de Valor</h2>
+              <h2 className="text-lg font-bold text-[#020817]">Vendas por Faixa de Valor</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -971,7 +690,7 @@ export default function VendasPage() {
                       innerRadius={58}
                       outerRadius={88}
                       paddingAngle={1}
-                      stroke={claro ? "#ffffff" : "#020817"}
+                      stroke="#ffffff"
                       strokeWidth={2}
                     >
                       {porFaixa.map((_, i) => (
@@ -979,22 +698,14 @@ export default function VendasPage() {
                       ))}
                     </Pie>
 
-                    <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
-                    borderRadius: 16,
-                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
-                    background: claro ? "#ffffff" : "#0b1220",
-                    color: claro ? "#0f172a" : "#ffffff",
-                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
-                  }}
-                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
-                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
+                    <Tooltip formatter={(v: any) => moeda(Number(v))} />
                   </PieChart>
                 </ResponsiveContainer>
 
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="text-center">
-                    <p className="text-[11px] text-slate-400 font-semibold">Total</p>
-                    <p className="text-sm font-bold text-white leading-4">
+                    <p className="text-[11px] text-slate-500 font-semibold">Total</p>
+                    <p className="text-sm font-bold text-slate-950 leading-4">
                       {moeda(totalVendido)}
                     </p>
                   </div>
@@ -1013,13 +724,13 @@ export default function VendasPage() {
                     />
 
                     <span
-                      className="text-slate-300 font-medium truncate"
+                      className="text-slate-700 font-medium truncate"
                       title={item.nome}
                     >
                       {item.nome}
                     </span>
 
-                    <span className="font-bold text-white">
+                    <span className="font-bold text-slate-950">
                       {(item.percentual || 0).toFixed(1).replace(".", ",")}%
                     </span>
                   </div>
@@ -1028,9 +739,9 @@ export default function VendasPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">
+              <h2 className="text-lg font-bold text-[#020817]">
                 Vendas por Faixa de Valor
               </h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
@@ -1040,7 +751,7 @@ export default function VendasPage() {
 
             <ResponsiveContainer width="100%" height={460}>
               <BarChart data={porFaixa} margin={{ top: 30, right: 16, left: 0, bottom: 48 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
 
                 <XAxis
                   dataKey="nomeCurto"
@@ -1052,31 +763,23 @@ export default function VendasPage() {
                 />
 
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#36577d" }}
                   tickFormatter={(value) => `${Number(value) / 1000}k`}
                   tickLine={false}
                   axisLine={false}
                 />
 
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
-                    borderRadius: 16,
-                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
-                    background: claro ? "#ffffff" : "#0b1220",
-                    color: claro ? "#0f172a" : "#ffffff",
-                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
-                  }}
-                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
-                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => moeda(Number(v))} />
 
                 <Bar dataKey="total" fill="#0f3b82" radius={[10, 10, 0, 0]} barSize={48}>
                   <LabelList
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={(v: any) => moeda(Number(v))}
+                    formatter={formatarValorGrafico}
                     style={{
                       fontSize: 10,
-                      fill: claro ? "#0f172a" : "#ffffff",
+                      fill: "#0f172a",
                       fontWeight: 700,
                     }}
                   />
@@ -1087,9 +790,9 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Vendas por Dia da Semana</h2>
+              <h2 className="text-lg font-bold text-[#020817]">Vendas por Dia da Semana</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -1097,41 +800,33 @@ export default function VendasPage() {
 
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={porDiaSemana} margin={{ top: 25, right: 16, left: 0, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
 
                 <XAxis
                   dataKey="dia"
-                  tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
+                  tick={{ fontSize: 11, fill: "#36577d", fontWeight: 600 }}
                   tickLine={false}
                   axisLine={false}
                 />
 
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 11, fill: "#36577d" }}
                   tickFormatter={(value) => `${Number(value) / 1000}k`}
                   tickLine={false}
                   axisLine={false}
                 />
 
-                <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
-                    borderRadius: 16,
-                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
-                    background: claro ? "#ffffff" : "#0b1220",
-                    color: claro ? "#0f172a" : "#ffffff",
-                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
-                  }}
-                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
-                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
+                <Tooltip formatter={(v: any) => moeda(Number(v))} />
 
                 <Bar dataKey="total" fill="#1d4ed8" radius={[10, 10, 0, 0]} barSize={44}>
                   <LabelList
                     dataKey="total"
                     position="top"
                     offset={10}
-                    formatter={(v: any) => moeda(Number(v))}
+                    formatter={formatarValorGrafico}
                     style={{
                       fontSize: 10,
-                      fill: claro ? "#0f172a" : "#ffffff",
+                      fill: "#0f172a",
                       fontWeight: 700,
                     }}
                   />
@@ -1140,18 +835,18 @@ export default function VendasPage() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Top 5 Maiores Vendas</h2>
+              <h2 className="text-lg font-bold text-[#020817]">Top 5 Maiores Vendas</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
             </div>
 
             <div className="overflow-x-auto">
-              <table className={claro ? "w-full min-w-[720px] text-slate-900" : "w-full min-w-[720px] text-slate-200"}>
+              <table className="w-full min-w-[720px]">
                 <thead>
-                  <tr className="bg-white/[0.04] text-xs text-slate-400">
+                  <tr className="bg-[#f1f7ff] text-xs text-[#36577d]">
                     <th className="py-3 px-3 text-left rounded-l-xl">#</th>
                     <th className="py-3 px-3 text-left">Data</th>
                     <th className="py-3 px-3 text-left">Paciente</th>
@@ -1162,8 +857,8 @@ export default function VendasPage() {
 
                 <tbody>
                   {topVendas.map((item, index) => (
-                    <tr key={item.id} className="border-b border-white/10 hover:bg-white/[0.05]">
-                      <td className="py-3 px-3 text-sm font-bold text-slate-400">
+                    <tr key={item.id} className="border-b border-[#e2ecfb] hover:bg-[#f8fbff]">
+                      <td className="py-3 px-3 text-sm font-bold text-slate-500">
                         {index + 1}
                       </td>
                       <td className="py-3 px-3 text-sm whitespace-nowrap">
@@ -1189,9 +884,9 @@ export default function VendasPage() {
             </button>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Vendas por Mês</h2>
+              <h2 className="text-lg font-bold text-[#020817]">Vendas por Mês</h2>
               <button className="text-xs font-semibold text-[#0f3b82] hover:text-[#95c11f]">
                 Ver detalhes
               </button>
@@ -1203,41 +898,33 @@ export default function VendasPage() {
                   data={comparativoMensalDetalhado}
                   margin={{ top: 28, right: 12, left: 0, bottom: 8 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.18)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#dbeafe" vertical={false} />
 
                   <XAxis
                     dataKey="mes"
-                    tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
+                    tick={{ fontSize: 11, fill: "#36577d", fontWeight: 600 }}
                     tickLine={false}
                     axisLine={false}
                   />
 
                   <YAxis
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tick={{ fontSize: 11, fill: "#36577d" }}
                     tickFormatter={(value) => `${Number(value) / 1000}k`}
                     tickLine={false}
                     axisLine={false}
                   />
 
-                  <Tooltip formatter={(v: any) => [moeda(Number(v)), "Total"]} contentStyle={{
-                    borderRadius: 16,
-                    border: claro ? "1px solid #dbeafe" : "1px solid rgba(149,193,31,0.25)",
-                    background: claro ? "#ffffff" : "#0b1220",
-                    color: claro ? "#0f172a" : "#ffffff",
-                    boxShadow: claro ? "0 18px 45px rgba(15,59,130,0.12)" : "0 18px 50px rgba(0,0,0,0.45)",
-                  }}
-                  labelStyle={{ color: claro ? "#0f3b82" : "#95c11f", fontWeight: 800, marginBottom: 6 }}
-                  itemStyle={{ color: claro ? "#0f172a" : "#ffffff", fontWeight: 700 }} />
+                  <Tooltip formatter={(v: any) => moeda(Number(v))} />
 
                   <Bar dataKey="total" fill="#0f3b82" radius={[12, 12, 0, 0]} barSize={58}>
                     <LabelList
                       dataKey="total"
                       position="top"
                       offset={10}
-                      formatter={(v: any) => moeda(Number(v))}
+                      formatter={formatarValorGrafico}
                       style={{
                         fontSize: 10,
-                        fill: "#ffffff",
+                        fill: "#0f172a",
                         fontWeight: 700,
                       }}
                     />
@@ -1248,8 +935,8 @@ export default function VendasPage() {
               <div
                 className={`rounded-2xl px-4 py-5 text-center border ${
                   variacao >= 0
-                    ? "bg-emerald-500/10 border-emerald-400/20 text-emerald-300"
-                    : "bg-red-500/10 border-red-400/20 text-red-300"
+                    ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                    : "bg-red-50 border-red-100 text-red-600"
                 }`}
               >
                 <p className="text-2xl font-bold">{variacaoTexto}</p>
@@ -1260,11 +947,11 @@ export default function VendasPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:col-span-2 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:col-span-2 2xl:p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
               <div>
-                <h2 className="text-xl font-bold text-white">Todas as Vendas</h2>
-                <p className="text-sm text-slate-400 mt-1">
+                <h2 className="text-xl font-bold text-[#020817]">Todas as Vendas</h2>
+                <p className="text-sm text-slate-500 mt-1">
                   Exibindo {dadosPaginados.length} de {dadosFiltrados.length} registros.
                 </p>
               </div>
@@ -1279,24 +966,24 @@ export default function VendasPage() {
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
                     placeholder="Buscar venda..."
-                    className="border border-white/10 bg-white/[0.06] rounded-xl pl-9 pr-4 py-2 text-sm text-white outline-none placeholder:text-slate-500"
+                    className="border border-[#dbeafe] rounded-xl pl-9 pr-4 py-2 text-sm outline-none"
                   />
                 </div>
 
-                <div className="border border-white/10 rounded-xl px-4 py-2 text-sm text-slate-300 flex items-center gap-2 bg-white/[0.06]">
+                <div className="border border-[#dbeafe] rounded-xl px-4 py-2 text-sm text-slate-700 flex items-center gap-2 bg-white">
                   <CalendarDays size={15} className="text-slate-400" />
                   {formatarData(dataInicio)} - {formatarData(dataFim)}
                 </div>
 
                 <button
                   onClick={exportarCSV}
-                  className="border border-[#95c11f]/30 text-[#0f3b82] rounded-xl px-4 py-2 text-sm flex items-center gap-2 hover:bg-white/[0.08] transition"
+                  className="border border-purple-200 text-[#0f3b82] rounded-xl px-4 py-2 text-sm flex items-center gap-2 hover:bg-[#f3f8ea] transition"
                 >
                   <Download size={16} />
                   Exportar
                 </button>
 
-                <button className="border border-white/10 rounded-xl w-10 h-10 flex items-center justify-center text-slate-400 hover:bg-white/[0.05] transition">
+                <button className="border border-[#dbeafe] rounded-xl w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-[#f8fbff] transition">
                   <MoreVertical size={17} />
                 </button>
               </div>
@@ -1306,15 +993,14 @@ export default function VendasPage() {
               <p>Carregando...</p>
             ) : (
               <>
-                <div className="overflow-auto rounded-2xl border border-white/10">
-                  <table className={claro ? "w-full min-w-[720px] text-slate-900" : "w-full min-w-[720px] text-slate-200"}>
+                <div className="overflow-auto rounded-2xl border border-[#dbeafe]">
+                  <table className="w-full min-w-[720px]">
                     <thead>
-                      <tr className="bg-white/[0.04] text-sm text-slate-400">
+                      <tr className="bg-[#f1f7ff] text-sm text-[#36577d]">
                         <th className="text-left py-4 px-4">Data</th>
                         <th className="text-left py-4 px-4">Paciente</th>
                         <th className="text-center py-4 px-4">Qtd. Títulos</th>
                         <th className="text-right py-4 px-4">Valor</th>
-                        <th className="text-right py-4 px-4">Entrada</th>
                       </tr>
                     </thead>
 
@@ -1322,7 +1008,7 @@ export default function VendasPage() {
                       {dadosPaginados.map((item) => (
                         <tr
                           key={item.id}
-                          className="border-t border-white/10 hover:bg-white/[0.05]"
+                          className="border-t border-[#e2ecfb] hover:bg-[#f8fbff]"
                         >
                           <td className="py-4 px-4">{formatarData(item.data)}</td>
 
@@ -1337,9 +1023,6 @@ export default function VendasPage() {
                           <td className="py-4 px-4 text-right font-semibold">
                             {moeda(Number(item.valor || 0))}
                           </td>
-                          <td className="py-4 px-4 text-right font-semibold text-[#16a34a]">
-                            {moeda(Number(item.entrada || 0))}
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1347,7 +1030,7 @@ export default function VendasPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-4 mt-5">
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-500">
                     Exibindo {(paginaAtual - 1) * itensPorPagina + 1} a{" "}
                     {Math.min(paginaAtual * itensPorPagina, dadosFiltrados.length)} de{" "}
                     {dadosFiltrados.length} resultados
@@ -1369,8 +1052,8 @@ export default function VendasPage() {
                             onClick={() => setPaginaAtual(pagina)}
                             className={`w-9 h-9 rounded-xl text-sm font-semibold border transition ${
                               paginaAtual === pagina
-                                ? "bg-[#0f3b82] text-white border-[#0f3b82] shadow-lg shadow-blue-950/40"
-                                : "bg-white/[0.06] text-slate-300 border-white/10 hover:border-[#95c11f] hover:text-[#0f3b82]"
+                                ? "bg-[#0f3b82] text-white border-[#0f3b82] shadow-lg shadow-blue-200"
+                                : "bg-white text-slate-600 border-slate-200 hover:border-[#95c11f] hover:text-[#0f3b82]"
                             }`}
                           >
                             {pagina}
@@ -1384,7 +1067,7 @@ export default function VendasPage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+          <div className="rounded-3xl border border-[#dbeafe] bg-white/95 p-4 shadow-[0_24px_70px_rgba(15,59,130,0.10)] backdrop-blur-sm 2xl:p-6">
             <h2 className="font-semibold text-lg mb-4">Indicadores do Período</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1411,7 +1094,7 @@ export default function VendasPage() {
                   detalhe: maiorQtdTitulosItem ? `em ${formatarData(maiorQtdTitulosItem.data)}` : "-",
                   Icon: Activity,
                   bg: "bg-[#0f3b82]/10",
-                  cor: "text-[#3b82f6]",
+                  cor: "text-[#1d4ed8]",
                 },
                 {
                   titulo: "Conversão de vendas",
@@ -1419,7 +1102,7 @@ export default function VendasPage() {
                   detalhe: "realizadas",
                   Icon: ShoppingCart,
                   bg: "bg-[#1d4ed8]/10",
-                  cor: "text-[#3b82f6]",
+                  cor: "text-[#0f3b82]",
                 },
                 {
                   titulo: "Total de títulos",
@@ -1443,7 +1126,7 @@ export default function VendasPage() {
                 return (
                   <div
                     key={item.titulo}
-                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 bg-white/[0.06] hover:border-[#95c11f]/40 hover:shadow-md transition"
+                    className="rounded-2xl border border-slate-200 p-4 bg-white hover:border-[#95c11f]/40 hover:shadow-md transition"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-2xl ${item.bg} ${item.cor} flex items-center justify-center`}>
@@ -1451,11 +1134,11 @@ export default function VendasPage() {
                       </div>
 
                       <div className="min-w-0">
-                        <p className="text-xs text-slate-400">{item.titulo}</p>
-                        <h3 className={`font-bold mt-1 break-words leading-5 ${claro ? "text-slate-900" : "text-white"}`}>
+                        <p className="text-xs text-slate-500">{item.titulo}</p>
+                        <h3 className="font-bold mt-1 break-words leading-5 text-slate-950">
                           {item.valor}
                         </h3>
-                        <p className="text-sm text-slate-400 mt-1">{item.detalhe}</p>
+                        <p className="text-sm text-slate-500 mt-1">{item.detalhe}</p>
                       </div>
                     </div>
                   </div>
@@ -1465,7 +1148,7 @@ export default function VendasPage() {
 
             <button
               onClick={() => setModalAnalise(true)}
-              className="w-full mt-5 rounded-2xl border border-[#95c11f]/30 text-[#0f3b82] font-semibold py-4 hover:bg-white/[0.08] transition flex items-center justify-center gap-2"
+              className="w-full mt-5 rounded-2xl border border-purple-300 text-[#0f3b82] font-semibold py-4 hover:bg-[#f3f8ea] transition flex items-center justify-center gap-2"
             >
               <Eye size={18} />
               Ver análise completa
@@ -1474,58 +1157,58 @@ export default function VendasPage() {
         </div>
 
         {modalAnalise && (
-          <div className="fixed inset-0 z-50 bg-[#020817]/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/10 bg-[#0b1220] p-4 shadow-2xl 2xl:p-6">
+          <div className="fixed inset-0 z-50 bg-[#020817]/50 flex items-center justify-center p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-[#dbeafe] bg-white p-4 shadow-2xl 2xl:p-6">
               <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">
+                  <h2 className="text-2xl font-bold text-slate-900">
                     Análise completa de vendas
                   </h2>
-                  <p className="text-sm text-slate-400 mt-1">
+                  <p className="text-sm text-slate-500 mt-1">
                     {formatarData(dataInicio)} até {formatarData(dataFim)}
                   </p>
                 </div>
 
                 <button
                   onClick={() => setModalAnalise(false)}
-                  className="rounded-full border border-white/10 p-2 hover:bg-white/[0.05]"
+                  className="rounded-full border border-slate-200 p-2 hover:bg-[#f8fbff]"
                 >
                   <X size={18} />
                 </button>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-sm text-slate-400">Total vendido</p>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm text-slate-500">Total vendido</p>
                   <h3 className="text-xl font-bold text-purple-600 mt-2">
                     {moeda(totalVendido)}
                   </h3>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-sm text-slate-400">Mês anterior</p>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm text-slate-500">Mês anterior</p>
                   <h3 className="text-xl font-bold text-[#6b7f16] mt-2">
                     {moeda(totalMesAnterior)}
                   </h3>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-sm text-slate-400">Variação</p>
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm text-slate-500">Variação</p>
                   <h3 className="text-xl font-bold text-purple-600 mt-2">
                     {variacaoTexto}
                   </h3>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                  <p className="text-sm text-slate-400">Pacientes</p>
-                  <h3 className="text-xl font-bold text-white mt-2">
+                <div className="rounded-2xl border border-slate-200 p-4">
+                  <p className="text-sm text-slate-500">Pacientes</p>
+                  <h3 className="text-xl font-bold text-slate-900 mt-2">
                     {pacientes}
                   </h3>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-2xl bg-white/[0.04] p-4">
-                <p className="text-sm text-slate-300">
+              <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-600">
                   Maior venda do período:{" "}
                   <strong>{maiorVendaItem?.paciente || "-"}</strong>, no valor de{" "}
                   <strong>{moeda(maiorVenda)}</strong>.
@@ -1534,15 +1217,10 @@ export default function VendasPage() {
             </div>
           </div>
         )}
-        </div>
       </div>
     </AppShell>
   );
 }
-
-
-
-
 
 
 
