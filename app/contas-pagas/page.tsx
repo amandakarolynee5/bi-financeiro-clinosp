@@ -162,7 +162,6 @@ export default function ContasPagasPage() {
   const [dataFim, setDataFim] = useState(periodoAtual.fim);
   const [busca, setBusca] = useState("");
   const [dadosAno, setDadosAno] = useState<ContaPaga[]>([]);
-  const [loadingAno, setLoadingAno] = useState(false);
   const [anoComparativo, setAnoComparativo] = useState(
     criarDataLocal(periodoAtual.inicio).getFullYear()
   );
@@ -228,8 +227,6 @@ export default function ContasPagasPage() {
   }
 
   async function carregarDadosAno() {
-    setLoadingAno(true);
-
     const inicioAno = `${anoComparativo}-01-01`;
     const fimAno = `${anoComparativo}-12-31`;
 
@@ -248,7 +245,6 @@ export default function ContasPagasPage() {
 
       if (error) {
         console.error(error);
-        setLoadingAno(false);
         return;
       }
 
@@ -262,7 +258,6 @@ export default function ContasPagasPage() {
     }
 
     setDadosAno(todosDados);
-    setLoadingAno(false);
   }
 
   async function carregarMesAnterior() {
@@ -801,22 +796,6 @@ export default function ContasPagasPage() {
     (acc, item) => acc + item.total,
     0
   );
-
-  const mesesComValorPlano = comparativoPlanoMensal.filter(
-    (item) => item.total > 0
-  );
-
-  const mediaPlanoAno = mesesComValorPlano.length
-    ? totalPlanoAno / mesesComValorPlano.length
-    : 0;
-
-  const maiorMesPlano = [...comparativoPlanoMensal]
-    .filter((item) => item.total > 0)
-    .sort((a, b) => b.total - a.total)[0];
-
-  const menorMesPlano = [...comparativoPlanoMensal]
-    .filter((item) => item.total > 0)
-    .sort((a, b) => a.total - b.total)[0];
 
   const variacao =
     totalMesAnterior > 0
@@ -2298,7 +2277,7 @@ export default function ContasPagasPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_1fr] 2xl:grid-cols-[320px_1fr_230px]">
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[280px_1fr] 2xl:grid-cols-[320px_1fr]">
             <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
               <label className="text-xs font-bold uppercase tracking-wide text-slate-400">
                 Plano de Contas
@@ -2444,7 +2423,7 @@ export default function ContasPagasPage() {
                         dataKey="total"
                         position="top"
                         offset={10}
-                        formatter={(v: any) => Number(v) > 0 ? moedaCompacta(Number(v)) : ""}
+                        formatter={(v: any) => Number(v) > 0 ? moeda(Number(v)) : ""}
                         style={{
                           fontSize: 10,
                           fill: claro ? "#0f172a" : "#ffffff",
@@ -2461,55 +2440,6 @@ export default function ContasPagasPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
-              <h3 className="text-base font-bold text-white">Resumo do Plano</h3>
-
-              {loadingAno ? (
-                <p className="mt-4 text-sm text-slate-400">Carregando comparativo...</p>
-              ) : (
-                <div className="mt-5 space-y-5">
-                  <div>
-                    <p className="text-xs text-slate-400">Plano selecionado</p>
-                    <p className="mt-1 text-sm font-bold text-[#3b82f6]">
-                      {planoSelecionado || "-"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-slate-400">Total no ano</p>
-                    <p className="mt-1 text-xl font-black text-white">
-                      {moeda(totalPlanoAno)}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-slate-400">Média mensal</p>
-                    <p className="mt-1 text-lg font-bold text-white">
-                      {moeda(mediaPlanoAno)}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-slate-400">Maior mês</p>
-                    <p className="mt-1 text-sm font-bold text-[#95c11f]">
-                      {maiorMesPlano
-                        ? `${maiorMesPlano.mesCompleto} - ${moeda(maiorMesPlano.total)}`
-                        : "-"}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xs text-slate-400">Menor mês</p>
-                    <p className="mt-1 text-sm font-bold text-red-500">
-                      {menorMesPlano
-                        ? `${menorMesPlano.mesCompleto} - ${moeda(menorMesPlano.total)}`
-                        : "-"}
-                    </p>
-                  </div>
-
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
