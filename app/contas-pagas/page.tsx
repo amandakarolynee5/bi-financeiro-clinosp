@@ -2423,7 +2423,7 @@ export default function ContasPagasPage() {
                         dataKey="total"
                         position="top"
                         offset={10}
-                        formatter={(v: any) => Number(v) > 0 ? moeda(Number(v)) : ""}
+                        formatter={(v: any) => Number(v) > 0 ? moedaCompacta(Number(v)) : ""}
                         style={{
                           fontSize: 10,
                           fill: claro ? "#0f172a" : "#ffffff",
