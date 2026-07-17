@@ -119,6 +119,62 @@ export default function ImportarPage() {
     return Number.isFinite(Number(valor));
   }
 
+  function textoLimpo(valor: any) {
+    if (valor === null || valor === undefined) return null;
+
+    const texto = String(valor).trim();
+    return texto ? texto : null;
+  }
+
+  function normalizarGrupoContas(valor: any) {
+    const texto = textoLimpo(valor);
+    if (!texto) return null;
+
+    const normalizado = removerAcentos(texto);
+
+    if (normalizado.includes("custo operacional")) {
+      return "Custos Operacionais";
+    }
+
+    if (normalizado.includes("despesa operacional")) {
+      return "Despesas Operacionais";
+    }
+
+    if (
+      normalizado.includes("prolabore") ||
+      normalizado.includes("pro-labore") ||
+      normalizado.includes("pro labore")
+    ) {
+      return "Pró-labore";
+    }
+
+    if (
+      normalizado.includes("emprestimo") ||
+      normalizado.includes("financiamento")
+    ) {
+      return "Empréstimos";
+    }
+
+    return texto;
+  }
+
+  function normalizarTipoConta(valor: any) {
+    const texto = textoLimpo(valor);
+    if (!texto) return null;
+
+    const normalizado = removerAcentos(texto);
+
+    if (normalizado.includes("variavel")) {
+      return "Variável";
+    }
+
+    if (normalizado.includes("fixo") || normalizado.includes("fixa")) {
+      return "Fixa";
+    }
+
+    return texto;
+  }
+
   function converterData(data: any) {
     if (!data) return null;
 
@@ -267,6 +323,26 @@ export default function ImportarPage() {
 
             valor: converterValor(
               valorCampo(row, ["valor", "valor pago", "pagamento"])
+            ),
+
+            grupo_contas: normalizarGrupoContas(
+              valorCampo(row, [
+                "grupo de contas",
+                "grupo contas",
+                "grupo da conta",
+                "grupo",
+              ])
+            ),
+
+            tipo_conta: normalizarTipoConta(
+              valorCampo(row, [
+                "tipo de conta",
+                "tipo conta",
+                "classificacao",
+                "classificação",
+                "fixa variavel",
+                "fixa variável",
+              ])
             ),
           }))
           .filter(
@@ -549,7 +625,7 @@ export default function ImportarPage() {
           </h1>
 
           <p className="mt-1 text-sm text-slate-400 2xl:mt-2 2xl:text-base">
-            Envie as planilhas de contas pagas, valores recebidos e vendas.
+            Envie as planilhas de contas pagas, valores recebidos e vendas. As contas pagas também aceitam Grupo de Contas e Tipo de Conta.
           </p>
         </div>
 
@@ -605,6 +681,7 @@ export default function ImportarPage() {
     </AppShell>
   );
 }
+
 
 
 

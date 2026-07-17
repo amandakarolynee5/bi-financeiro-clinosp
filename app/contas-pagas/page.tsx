@@ -46,6 +46,8 @@ type ContaPaga = {
   plano_contas: string;
   descricao: string;
   valor: number;
+  grupo_contas?: string | null;
+  tipo_conta?: string | null;
 };
 
 type PlanoResumo = {
@@ -108,6 +110,45 @@ function getPeriodoAtual() {
     inicio: paraISO(primeiro),
     fim: paraISO(ultimo),
   };
+}
+
+function normalizarGrupoConta(valor: string | null | undefined) {
+  const texto = String(valor || "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .toUpperCase();
+
+  if (texto === "CUSTOS OPERACIONAIS" || texto === "CUSTO OPERACIONAL") {
+    return "Custos Operacionais";
+  }
+
+  if (
+    texto === "DESPESAS OPERACIONAIS" ||
+    texto === "DESPESA OPERACIONAL"
+  ) {
+    return "Despesas Operacionais";
+  }
+
+  if (
+    texto === "PRO-LABORE" ||
+    texto === "PRO LABORE" ||
+    texto === "PROLABORE"
+  ) {
+    return "Pró-labore";
+  }
+
+  if (
+    texto === "EMPRESTIMOS" ||
+    texto === "EMPRESTIMO" ||
+    texto === "FINANCIAMENTOS" ||
+    texto === "FINANCIAMENTO"
+  ) {
+    return "Empréstimos";
+  }
+
+  return String(valor || "").trim() || "Sem grupo";
 }
 
 export default function ContasPagasPage() {
@@ -353,6 +394,130 @@ export default function ContasPagasPage() {
     0
   );
 
+  const gruposPadrao = [
+    "Custos Operacionais",
+    "Despesas Operacionais",
+    "Pró-labore",
+    "Empréstimos",
+  ];
+
+  const coresGrupos: Record<string, string> = {
+    "Custos Operacionais": "#1d4ed8",
+    "Despesas Operacionais": "#38bdf8",
+    "Pró-labore": "#95c11f",
+    "Empréstimos": "#16a34a",
+  };
+
+  const totalPorGrupo = useMemo(() => {
+    const agrupado: Record<string, number> = {};
+
+    gruposPadrao.forEach((grupo) => {
+      agrupado[grupo] = 0;
+    });
+
+    dados.forEach((item) => {
+      const grupo = normalizarGrupoConta(item.grupo_contas);
+
+      if (agrupado[grupo] === undefined) {
+        agrupado[grupo] = 0;
+      }
+
+      agrupado[grupo] += Number(item.valor || 0);
+    });
+
+    return Object.entries(agrupado)
+      .map(([nome, total]) => ({
+        nome,
+        total,
+        percentual: totalPago > 0 ? (total / totalPago) * 100 : 0,
+        cor: coresGrupos[normalizarGrupoConta(nome)] || "#94a3b8",
+      }))
+      .filter((item) => item.total > 0)
+      .sort((a, b) => b.total - a.total);
+  }, [dados, totalPago]);
+
+  const localizarTotalGrupo = (nome: string) =>
+    totalPorGrupo.find(
+      (item) => normalizarGrupoConta(item.nome) === normalizarGrupoConta(nome)
+    )?.total || 0;
+
+  const totalCustosOperacionais =
+    localizarTotalGrupo("Custos Operacionais");
+
+  const totalDespesasOperacionais =
+    localizarTotalGrupo("Despesas Operacionais");
+
+  const totalProLabore =
+    localizarTotalGrupo("Pró-labore");
+
+  const totalEmprestimos =
+    localizarTotalGrupo("Empréstimos");
+
+  const percentualGrupo = (valor: number) =>
+    totalPago > 0 ? (valor / totalPago) * 100 : 0;
+
+  const totalPorTipo = useMemo(() => {
+    const fixas = dados.reduce((acc, item) => {
+      const tipo = String(item.tipo_conta || "").toLowerCase();
+      return tipo.includes("fix") ? acc + Number(item.valor || 0) : acc;
+    }, 0);
+
+    const variaveis = dados.reduce((acc, item) => {
+      const tipo = String(item.tipo_conta || "").toLowerCase();
+      return tipo.includes("vari") ? acc + Number(item.valor || 0) : acc;
+    }, 0);
+
+    return [
+      {
+        nome: "Fixas",
+        total: fixas,
+        percentual: totalPago > 0 ? (fixas / totalPago) * 100 : 0,
+        cor: "#0f3b82",
+      },
+      {
+        nome: "Variáveis",
+        total: variaveis,
+        percentual: totalPago > 0 ? (variaveis / totalPago) * 100 : 0,
+        cor: "#95c11f",
+      },
+    ];
+  }, [dados, totalPago]);
+
+  const maiorGrupo = totalPorGrupo[0];
+
+  const evolucaoMensalGrupos = useMemo(() => {
+    const resultado = mesesComparativo.map((mes, index) => ({
+      mes,
+      mesCompleto: nomesMesesCompletos[index],
+      custosOperacionais: 0,
+      despesasOperacionais: 0,
+      proLabore: 0,
+      emprestimos: 0,
+    }));
+
+    dadosAno.forEach((item) => {
+      const data = criarDataLocal(item.data);
+
+      if (data.getFullYear() !== anoComparativo) return;
+
+      const grupo = normalizarGrupoConta(item.grupo_contas);
+      const valor = Number(item.valor || 0);
+      const mes = data.getMonth();
+
+      if (grupo === "Custos Operacionais") {
+        resultado[mes].custosOperacionais += valor;
+      } else if (grupo === "Despesas Operacionais") {
+        resultado[mes].despesasOperacionais += valor;
+      } else if (grupo === "Pró-labore") {
+        resultado[mes].proLabore += valor;
+      } else if (grupo === "Empréstimos") {
+        resultado[mes].emprestimos += valor;
+      }
+    });
+
+    return resultado;
+  }, [dadosAno, anoComparativo]);
+
   const quantidade = dados.length;
   const media = quantidade ? totalPago / quantidade : 0;
 
@@ -392,6 +557,74 @@ export default function ContasPagasPage() {
       percentual: totalPago > 0 ? (item.total / totalPago) * 100 : 0,
     }));
   }, [dados, totalPago]);
+
+  const custosOperacionaisPorPlano = useMemo<PlanoResumo[]>(() => {
+    const agrupado: Record<string, PlanoResumo> = {};
+
+    dados
+      .filter(
+        (item) =>
+          normalizarGrupoConta(item.grupo_contas) === "Custos Operacionais"
+      )
+      .forEach((item) => {
+        const nome = item.plano_contas || "Sem plano";
+
+        if (!agrupado[nome]) {
+          agrupado[nome] = {
+            nome,
+            nomeCurto: cortarTexto(nome, 22),
+            total: 0,
+            percentual: 0,
+          };
+        }
+
+        agrupado[nome].total += Number(item.valor || 0);
+      });
+
+    return Object.values(agrupado)
+      .map((item) => ({
+        ...item,
+        percentual:
+          totalCustosOperacionais > 0
+            ? (item.total / totalCustosOperacionais) * 100
+            : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
+  }, [dados, totalCustosOperacionais]);
+
+  const despesasOperacionaisPorPlano = useMemo<PlanoResumo[]>(() => {
+    const agrupado: Record<string, PlanoResumo> = {};
+
+    dados
+      .filter(
+        (item) =>
+          normalizarGrupoConta(item.grupo_contas) === "Despesas Operacionais"
+      )
+      .forEach((item) => {
+        const nome = item.plano_contas || "Sem plano";
+
+        if (!agrupado[nome]) {
+          agrupado[nome] = {
+            nome,
+            nomeCurto: cortarTexto(nome, 22),
+            total: 0,
+            percentual: 0,
+          };
+        }
+
+        agrupado[nome].total += Number(item.valor || 0);
+      });
+
+    return Object.values(agrupado)
+      .map((item) => ({
+        ...item,
+        percentual:
+          totalDespesasOperacionais > 0
+            ? (item.total / totalDespesasOperacionais) * 100
+            : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
+  }, [dados, totalDespesasOperacionais]);
 
   const porDia = useMemo(() => {
     return Object.values(
@@ -954,6 +1187,398 @@ export default function ContasPagasPage() {
           })}
         </div>
 
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            {
+              titulo: "Custos Operacionais",
+              valor: totalCustosOperacionais,
+              percentual: percentualGrupo(totalCustosOperacionais),
+              Icon: Activity,
+              cor: "text-[#3b82f6]",
+              fundo: "bg-[#1d4ed8]/15",
+            },
+            {
+              titulo: "Despesas Operacionais",
+              valor: totalDespesasOperacionais,
+              percentual: percentualGrupo(totalDespesasOperacionais),
+              Icon: FileText,
+              cor: "text-[#38bdf8]",
+              fundo: "bg-[#38bdf8]/15",
+            },
+            {
+              titulo: "Pró-labore",
+              valor: totalProLabore,
+              percentual: percentualGrupo(totalProLabore),
+              Icon: WalletCards,
+              cor: "text-[#95c11f]",
+              fundo: "bg-[#95c11f]/15",
+            },
+            {
+              titulo: "Empréstimos",
+              valor: totalEmprestimos,
+              percentual: percentualGrupo(totalEmprestimos),
+              Icon: CalendarRange,
+              cor: "text-[#16a34a]",
+              fundo: "bg-[#16a34a]/15",
+            },
+          ].map((item) => {
+            const Icon = item.Icon;
+
+            return (
+              <div
+                key={item.titulo}
+                className="relative min-h-[138px] overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06]/90 p-4 pr-14 shadow-[0_18px_55px_rgba(0,0,0,0.28)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#95c11f]/30 2xl:p-5 2xl:pr-16"
+              >
+                <p className="text-xs font-medium text-slate-400">
+                  {item.titulo}
+                </p>
+
+                <h3 className={`mt-3 text-xl font-bold ${item.cor} 2xl:text-2xl`}>
+                  {moeda(item.valor)}
+                </h3>
+
+                <p className="mt-3 text-[11px] text-slate-400">
+                  {item.percentual.toFixed(1).replace(".", ",")}% do total pago
+                </p>
+
+                <div
+                  className={`${item.fundo} ${item.cor} absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-2xl 2xl:h-14 2xl:w-14`}
+                >
+                  <Icon size={21} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-white 2xl:text-lg">
+                Composição por Grupo de Contas
+              </h2>
+              <p className="mt-1 text-xs text-slate-400">
+                Distribuição dos pagamentos por grupo
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 items-center gap-5 xl:grid-cols-[190px_1fr]">
+              <div className="relative mx-auto h-[230px] w-[190px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={totalPorGrupo}
+                      dataKey="total"
+                      nameKey="nome"
+                      innerRadius={58}
+                      outerRadius={88}
+                      paddingAngle={1}
+                      stroke={claro ? "#ffffff" : "#020817"}
+                      strokeWidth={2}
+                    >
+                      {totalPorGrupo.map((item) => (
+                        <Cell key={item.nome} fill={item.cor} />
+                      ))}
+                    </Pie>
+
+                    <Tooltip
+                      formatter={(valor: any) => [moeda(Number(valor)), "Total"]}
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: claro
+                          ? "1px solid #dbeafe"
+                          : "1px solid rgba(149,193,31,0.25)",
+                        background: claro ? "#ffffff" : "#0b1220",
+                        color: claro ? "#0f172a" : "#ffffff",
+                        boxShadow: claro
+                          ? "0 18px 45px rgba(15,59,130,0.12)"
+                          : "0 18px 50px rgba(0,0,0,0.45)",
+                      }}
+                      labelStyle={{
+                        color: claro ? "#0f3b82" : "#95c11f",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                      itemStyle={{
+                        color: claro ? "#0f172a" : "#ffffff",
+                        fontWeight: 700,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <p className="text-[11px] font-semibold text-slate-400">
+                      Total Pago
+                    </p>
+                    <p className="text-sm font-bold text-white">
+                      {moeda(totalPago)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {totalPorGrupo.map((item) => (
+                  <div
+                    key={item.nome}
+                    className="grid grid-cols-[12px_1fr_auto] items-center gap-2"
+                  >
+                    <span
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: item.cor }}
+                    />
+                    <span className="truncate text-sm font-medium text-slate-300">
+                      {item.nome}
+                    </span>
+                    <span className="text-sm font-bold text-white">
+                      {item.percentual.toFixed(1).replace(".", ",")}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-[#1d4ed8]/20 bg-[#1d4ed8]/10 p-4">
+              <p className="text-xs text-slate-400">Grupo com maior gasto</p>
+              <p className="mt-1 font-bold text-[#3b82f6]">
+                {maiorGrupo?.nome || "-"}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-white">
+                {moeda(maiorGrupo?.total || 0)}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-white 2xl:text-lg">
+                Despesas Fixas x Variáveis
+              </h2>
+              <p className="mt-1 text-xs text-slate-400">
+                Composição por tipo de conta
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 items-center gap-5 xl:grid-cols-[190px_1fr]">
+              <div className="relative mx-auto h-[230px] w-[190px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={totalPorTipo}
+                      dataKey="total"
+                      nameKey="nome"
+                      innerRadius={58}
+                      outerRadius={88}
+                      paddingAngle={1}
+                      stroke={claro ? "#ffffff" : "#020817"}
+                      strokeWidth={2}
+                    >
+                      {totalPorTipo.map((item) => (
+                        <Cell key={item.nome} fill={item.cor} />
+                      ))}
+                    </Pie>
+
+                    <Tooltip
+                      formatter={(valor: any) => [moeda(Number(valor)), "Total"]}
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: claro
+                          ? "1px solid #dbeafe"
+                          : "1px solid rgba(149,193,31,0.25)",
+                        background: claro ? "#ffffff" : "#0b1220",
+                        color: claro ? "#0f172a" : "#ffffff",
+                        boxShadow: claro
+                          ? "0 18px 45px rgba(15,59,130,0.12)"
+                          : "0 18px 50px rgba(0,0,0,0.45)",
+                      }}
+                      labelStyle={{
+                        color: claro ? "#0f3b82" : "#95c11f",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                      itemStyle={{
+                        color: claro ? "#0f172a" : "#ffffff",
+                        fontWeight: 700,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <p className="text-[11px] font-semibold text-slate-400">
+                      Total Pago
+                    </p>
+                    <p className="text-sm font-bold text-white">
+                      {moeda(totalPago)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {totalPorTipo.map((item) => (
+                  <div
+                    key={item.nome}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: item.cor }}
+                      />
+                      <p className="text-sm font-semibold text-white">
+                        {item.nome}
+                      </p>
+                    </div>
+
+                    <p className="mt-2 text-lg font-bold text-white">
+                      {moeda(item.total)}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-400">
+                      {item.percentual.toFixed(1).replace(".", ",")}% do total
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-white 2xl:text-lg">
+                  Evolução Mensal por Grupo
+                </h2>
+                <p className="mt-1 text-xs text-slate-400">
+                  Todos os meses de {anoComparativo}
+                </p>
+              </div>
+
+              <select
+                value={anoComparativo}
+                onChange={(e) => setAnoComparativo(Number(e.target.value))}
+                className="rounded-xl border border-[#95c11f]/30 bg-[#0f1f3a] px-3 py-2 text-xs font-bold text-white outline-none"
+              >
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+              </select>
+            </div>
+
+            <div className="h-[360px] min-h-[360px] min-w-[320px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={evolucaoMensalGrupos}
+                  margin={{ top: 18, right: 18, left: 0, bottom: 8 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.18)"
+                    vertical={false}
+                  />
+
+                  <XAxis
+                    dataKey="mes"
+                    tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 600 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+
+                  <YAxis
+                    tick={{ fontSize: 11, fill: "#94a3b8" }}
+                    tickFormatter={(valor) => `${Number(valor) / 1000}k`}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+
+                  <Tooltip
+                    formatter={(valor: any, nome: any) => {
+                      const nomes: Record<string, string> = {
+                        custosOperacionais: "Custos Operacionais",
+                        despesasOperacionais: "Despesas Operacionais",
+                        proLabore: "Pró-labore",
+                        emprestimos: "Empréstimos",
+                      };
+
+                      return [moeda(Number(valor)), nomes[nome] || nome];
+                    }}
+                    labelFormatter={(label) => {
+                      const mes = evolucaoMensalGrupos.find(
+                        (item) => item.mes === label
+                      );
+
+                      return mes
+                        ? `${mes.mesCompleto}/${anoComparativo}`
+                        : String(label);
+                    }}
+                    contentStyle={{
+                      borderRadius: 16,
+                      border: claro
+                        ? "1px solid #dbeafe"
+                        : "1px solid rgba(149,193,31,0.25)",
+                      background: claro ? "#ffffff" : "#0b1220",
+                      color: claro ? "#0f172a" : "#ffffff",
+                      boxShadow: claro
+                        ? "0 18px 45px rgba(15,59,130,0.12)"
+                        : "0 18px 50px rgba(0,0,0,0.45)",
+                    }}
+                    labelStyle={{
+                      color: claro ? "#0f3b82" : "#95c11f",
+                      fontWeight: 800,
+                      marginBottom: 6,
+                    }}
+                    itemStyle={{
+                      color: claro ? "#0f172a" : "#ffffff",
+                      fontWeight: 700,
+                    }}
+                  />
+
+                  <Line
+                    type="monotone"
+                    dataKey="custosOperacionais"
+                    name="custosOperacionais"
+                    stroke="#1d4ed8"
+                    strokeWidth={3}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="despesasOperacionais"
+                    name="despesasOperacionais"
+                    stroke="#38bdf8"
+                    strokeWidth={3}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="proLabore"
+                    name="proLabore"
+                    stroke="#95c11f"
+                    strokeWidth={3}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="emprestimos"
+                    name="emprestimos"
+                    stroke="#16a34a"
+                    strokeWidth={3}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-3 2xl:gap-6">
           <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
             <div className="flex items-center justify-between mb-4">
@@ -1229,6 +1854,214 @@ export default function ContasPagasPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2 2xl:gap-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-white 2xl:text-lg">
+                  Custos Operacionais por Plano de Contas
+                </h2>
+                <p className="mt-1 text-xs text-slate-400">
+                  Maiores custos do período selecionado
+                </p>
+              </div>
+
+              <span className="rounded-full border border-[#1d4ed8]/20 bg-[#1d4ed8]/10 px-3 py-1 text-xs font-bold text-[#3b82f6]">
+                {moeda(totalCustosOperacionais)}
+              </span>
+            </div>
+
+            {custosOperacionaisPorPlano.length === 0 ? (
+              <div className="flex h-[360px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] text-sm text-slate-400">
+                Nenhum custo operacional encontrado no período.
+              </div>
+            ) : (
+              <div className="h-[360px] min-h-[360px] min-w-[320px] 2xl:h-[430px]">
+                <ResponsiveContainer width="100%" height="100%" minWidth={320} minHeight={330}>
+                  <BarChart
+                    data={custosOperacionaisPorPlano.slice(0, 10)}
+                    layout="vertical"
+                    margin={{ top: 8, right: 95, left: 0, bottom: 8 }}
+                  >
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      tickFormatter={(value) => `${Number(value) / 1000}k`}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+
+                    <YAxis
+                      dataKey="nomeCurto"
+                      type="category"
+                      width={165}
+                      interval={0}
+                      tick={{
+                        fontSize: 11,
+                        fill: "#cbd5e1",
+                        fontWeight: 600,
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+
+                    <Tooltip
+                      formatter={(valor: any) => [
+                        moeda(Number(valor)),
+                        "Total",
+                      ]}
+                      labelFormatter={(_, payload) =>
+                        payload?.[0]?.payload?.nome || ""
+                      }
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: claro
+                          ? "1px solid #dbeafe"
+                          : "1px solid rgba(149,193,31,0.25)",
+                        background: claro ? "#ffffff" : "#0b1220",
+                        color: claro ? "#0f172a" : "#ffffff",
+                        boxShadow: claro
+                          ? "0 18px 45px rgba(15,59,130,0.12)"
+                          : "0 18px 50px rgba(0,0,0,0.45)",
+                      }}
+                      labelStyle={{
+                        color: claro ? "#0f3b82" : "#95c11f",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                      itemStyle={{
+                        color: claro ? "#0f172a" : "#ffffff",
+                        fontWeight: 700,
+                      }}
+                    />
+
+                    <Bar
+                      dataKey="total"
+                      fill="#1d4ed8"
+                      radius={[0, 12, 12, 0]}
+                      barSize={22}
+                    >
+                      <LabelList
+                        dataKey="total"
+                        position="right"
+                        formatter={(valor: any) => moeda(Number(valor))}
+                        style={{
+                          fontSize: 10,
+                          fill: "#ffffff",
+                          fontWeight: 700,
+                        }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06]/95 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-xl 2xl:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-white 2xl:text-lg">
+                  Despesas Operacionais por Plano de Contas
+                </h2>
+                <p className="mt-1 text-xs text-slate-400">
+                  Maiores despesas do período selecionado
+                </p>
+              </div>
+
+              <span className="rounded-full border border-[#38bdf8]/20 bg-[#38bdf8]/10 px-3 py-1 text-xs font-bold text-[#38bdf8]">
+                {moeda(totalDespesasOperacionais)}
+              </span>
+            </div>
+
+            {despesasOperacionaisPorPlano.length === 0 ? (
+              <div className="flex h-[360px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.03] text-sm text-slate-400">
+                Nenhuma despesa operacional encontrada no período.
+              </div>
+            ) : (
+              <div className="h-[360px] min-h-[360px] min-w-[320px] 2xl:h-[430px]">
+                <ResponsiveContainer width="100%" height="100%" minWidth={320} minHeight={330}>
+                  <BarChart
+                    data={despesasOperacionaisPorPlano.slice(0, 10)}
+                    layout="vertical"
+                    margin={{ top: 8, right: 95, left: 0, bottom: 8 }}
+                  >
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 11, fill: "#94a3b8" }}
+                      tickFormatter={(value) => `${Number(value) / 1000}k`}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+
+                    <YAxis
+                      dataKey="nomeCurto"
+                      type="category"
+                      width={165}
+                      interval={0}
+                      tick={{
+                        fontSize: 11,
+                        fill: "#cbd5e1",
+                        fontWeight: 600,
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+
+                    <Tooltip
+                      formatter={(valor: any) => [
+                        moeda(Number(valor)),
+                        "Total",
+                      ]}
+                      labelFormatter={(_, payload) =>
+                        payload?.[0]?.payload?.nome || ""
+                      }
+                      contentStyle={{
+                        borderRadius: 16,
+                        border: claro
+                          ? "1px solid #dbeafe"
+                          : "1px solid rgba(149,193,31,0.25)",
+                        background: claro ? "#ffffff" : "#0b1220",
+                        color: claro ? "#0f172a" : "#ffffff",
+                        boxShadow: claro
+                          ? "0 18px 45px rgba(15,59,130,0.12)"
+                          : "0 18px 50px rgba(0,0,0,0.45)",
+                      }}
+                      labelStyle={{
+                        color: claro ? "#0f3b82" : "#95c11f",
+                        fontWeight: 800,
+                        marginBottom: 6,
+                      }}
+                      itemStyle={{
+                        color: claro ? "#0f172a" : "#ffffff",
+                        fontWeight: 700,
+                      }}
+                    />
+
+                    <Bar
+                      dataKey="total"
+                      fill="#38bdf8"
+                      radius={[0, 12, 12, 0]}
+                      barSize={22}
+                    >
+                      <LabelList
+                        dataKey="total"
+                        position="right"
+                        formatter={(valor: any) => moeda(Number(valor))}
+                        style={{
+                          fontSize: 10,
+                          fill: "#ffffff",
+                          fontWeight: 700,
+                        }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1939,6 +2772,9 @@ export default function ContasPagasPage() {
     </AppShell>
   );
 }
+
+
+
 
 
 
